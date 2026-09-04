@@ -44,9 +44,9 @@ class CategoryFilter extends StatelessWidget {
     return switch (category) {
       ProductCategory.all => 'همه',
       ProductCategory.electronics => 'دیجیتال',
-      ProductCategory.fashion => 'مد و پوشاک',
-      ProductCategory.home => 'خانه',
-      ProductCategory.beauty => 'زیبایی',
+      ProductCategory.jewelry => 'زیورآلات',
+      ProductCategory.mensClothing => 'پوشاک آقایان',
+      ProductCategory.womensClothing => 'پوشاک بانوان',
     };
   }
 }

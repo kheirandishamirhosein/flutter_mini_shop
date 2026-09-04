@@ -43,11 +43,12 @@ class ProductCard extends StatelessWidget {
                           end: Alignment.bottomLeft,
                         ),
                       ),
-                      child: Center(
-                        child: Icon(
-                          visual.icon,
-                          color: Colors.white,
-                          size: 62,
+                      child: Image.network(
+                        product.imageUrl,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => Center(
+                          child:
+                              Icon(visual.icon, color: Colors.white, size: 62),
                         ),
                       ),
                     ),
@@ -75,29 +76,6 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (product.oldPrice != null)
-                      PositionedDirectional(
-                        bottom: 7,
-                        start: 7,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: const Color(0xFF2C2850),
-                          ),
-                          child: const Text(
-                            'پیشنهاد ویژه',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -129,7 +107,7 @@ class ProductCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    _formatPrice(product.price),
+                    '\$${product.price.toStringAsFixed(2)}',
                     style: const TextStyle(
                       color: Color(0xFF4336D0),
                       fontSize: 13,
@@ -138,21 +116,10 @@ class ProductCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 7),
-              if (product.oldPrice != null)
-                Text(
-                  '${_formatPrice(product.oldPrice!)} تومان',
-                  style: const TextStyle(
-                    color: Color(0xFFAAA5B2),
-                    fontSize: 10,
-                    decoration: TextDecoration.lineThrough,
-                  ),
-                )
-              else
-                const SizedBox(height: 12),
-              const Text(
-                'تومان',
-                style: TextStyle(color: Color(0xFF777285), fontSize: 10),
+              const SizedBox(height: 5),
+              Text(
+                '${product.reviewCount} نظر',
+                style: const TextStyle(color: Color(0xFF777285), fontSize: 10),
               ),
             ],
           ),
@@ -161,36 +128,23 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  String _formatPrice(int price) {
-    final digits = price.toString();
-    final buffer = StringBuffer();
-    for (var index = 0; index < digits.length; index++) {
-      final remaining = digits.length - index;
-      buffer.write(digits[index]);
-      if (remaining > 1 && remaining % 3 == 1) {
-        buffer.write(',');
-      }
-    }
-    return buffer.toString();
-  }
-
   _ProductVisual _visualFor(ProductCategory category) {
     return switch (category) {
       ProductCategory.electronics => const _ProductVisual(
           color: Color(0xFF6254DC),
           icon: Icons.headphones_rounded,
         ),
-      ProductCategory.fashion => const _ProductVisual(
-          color: Color(0xFFD46A89),
+      ProductCategory.jewelry => const _ProductVisual(
+          color: Color(0xFFD98C47),
+          icon: Icons.diamond_outlined,
+        ),
+      ProductCategory.mensClothing => const _ProductVisual(
+          color: Color(0xFF3B9E96),
           icon: Icons.checkroom_rounded,
         ),
-      ProductCategory.home => const _ProductVisual(
-          color: Color(0xFF3B9E96),
-          icon: Icons.light_rounded,
-        ),
-      ProductCategory.beauty => const _ProductVisual(
-          color: Color(0xFFD98C47),
-          icon: Icons.spa_rounded,
+      ProductCategory.womensClothing => const _ProductVisual(
+          color: Color(0xFFD46A89),
+          icon: Icons.checkroom_rounded,
         ),
       ProductCategory.all => const _ProductVisual(
           color: Color(0xFF6254DC),

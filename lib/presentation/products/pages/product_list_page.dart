@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/product.dart';
+import '../view_model/product_list_view_model.dart';
 import '../widgets/category_filter.dart';
 import '../widgets/product_card.dart';
 
 class ProductListPage extends StatefulWidget {
-  const ProductListPage({super.key});
+  const ProductListPage({required this.viewModel, super.key});
+
+  final ProductListViewModel viewModel;
 
   @override
   State<ProductListPage> createState() => _ProductListPageState();
@@ -18,26 +21,42 @@ class _ProductListPageState extends State<ProductListPage> {
   int _selectedNavigationIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    widget.viewModel.addListener(_onStateChanged);
+    widget.viewModel.loadProducts();
+  }
+
+  @override
   void dispose() {
+    widget.viewModel.removeListener(_onStateChanged);
     _searchController.dispose();
     super.dispose();
   }
 
-  List<Product> get _visibleProducts {
-    final query = _searchController.text.trim();
+  void _onStateChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
-    return _previewProducts.where((product) {
+  List<Product> get _visibleProducts {
+    final query = _searchController.text.trim().toLowerCase();
+    final products = widget.viewModel.state.products;
+
+    return products.where((product) {
       final matchesCategory = _selectedCategory == ProductCategory.all ||
           product.category == _selectedCategory;
       final matchesQuery = query.isEmpty ||
-          product.title.contains(query) ||
-          product.description.contains(query);
+          product.title.toLowerCase().contains(query) ||
+          product.description.toLowerCase().contains(query);
       return matchesCategory && matchesQuery;
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = widget.viewModel.state;
     final products = _visibleProducts;
 
     return Scaffold(
@@ -100,7 +119,9 @@ class _ProductListPageState extends State<ProductListPage> {
               child: Row(
                 children: [
                   Text(
-                    '${products.length} محصول',
+                    state.status == ProductListStatus.success
+                        ? '${products.length} محصول'
+                        : 'محصولات',
                     style: const TextStyle(
                       color: Color(0xFF777285),
                       fontSize: 13,
@@ -116,44 +137,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 ],
               ),
             ),
-            Expanded(
-              child: products.isEmpty
-                  ? const _EmptyProductsView()
-                  : LayoutBuilder(
-                      builder: (context, constraints) {
-                        final columns = constraints.maxWidth >= 900
-                            ? 4
-                            : constraints.maxWidth >= 600
-                                ? 3
-                                : 2;
-                        return GridView.builder(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                          itemCount: products.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: columns,
-                            mainAxisSpacing: 14,
-                            crossAxisSpacing: 14,
-                            childAspectRatio: columns > 2 ? .71 : .64,
-                          ),
-                          itemBuilder: (context, index) {
-                            final product = products[index];
-                            return ProductCard(
-                              product: product,
-                              isFavorite: _favoriteIds.contains(product.id),
-                              onFavoriteTap: () {
-                                setState(() {
-                                  if (!_favoriteIds.add(product.id)) {
-                                    _favoriteIds.remove(product.id);
-                                  }
-                                });
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-            ),
+            Expanded(child: _buildContent(state, products)),
           ],
         ),
       ),
@@ -187,6 +171,52 @@ class _ProductListPageState extends State<ProductListPage> {
       ),
     );
   }
+
+  Widget _buildContent(ProductListState state, List<Product> products) {
+    return switch (state.status) {
+      ProductListStatus.loading =>
+        const Center(child: CircularProgressIndicator()),
+      ProductListStatus.failure => _ProductsErrorView(
+          onRetry: widget.viewModel.loadProducts,
+          message: state.errorMessage ?? 'دریافت محصولات ممکن نشد.',
+        ),
+      ProductListStatus.success when products.isEmpty =>
+        const _EmptyProductsView(),
+      ProductListStatus.success => LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 900
+                ? 4
+                : constraints.maxWidth >= 600
+                    ? 3
+                    : 2;
+            return GridView.builder(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+              itemCount: products.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+                childAspectRatio: columns > 2 ? .71 : .64,
+              ),
+              itemBuilder: (context, index) {
+                final product = products[index];
+                return ProductCard(
+                  product: product,
+                  isFavorite: _favoriteIds.contains(product.id),
+                  onFavoriteTap: () {
+                    setState(() {
+                      if (!_favoriteIds.add(product.id)) {
+                        _favoriteIds.remove(product.id);
+                      }
+                    });
+                  },
+                );
+              },
+            );
+          },
+        ),
+    };
+  }
 }
 
 class _EmptyProductsView extends StatelessWidget {
@@ -215,61 +245,37 @@ class _EmptyProductsView extends StatelessWidget {
   }
 }
 
-const _previewProducts = <Product>[
-  Product(
-    id: 'wireless-headphones',
-    title: 'هدفون بی‌سیم',
-    description: 'صدای شفاف و حذف نویز',
-    category: ProductCategory.electronics,
-    price: 2490000,
-    oldPrice: 2890000,
-    rating: 4.8,
-    reviewCount: 124,
-  ),
-  Product(
-    id: 'smart-watch',
-    title: 'ساعت هوشمند',
-    description: 'پایش سلامت و ورزش',
-    category: ProductCategory.electronics,
-    price: 3190000,
-    rating: 4.6,
-    reviewCount: 86,
-  ),
-  Product(
-    id: 'linen-shirt',
-    title: 'پیراهن لینن',
-    description: 'خنک، سبک و تابستانی',
-    category: ProductCategory.fashion,
-    price: 1190000,
-    oldPrice: 1450000,
-    rating: 4.7,
-    reviewCount: 53,
-  ),
-  Product(
-    id: 'table-lamp',
-    title: 'چراغ رومیزی',
-    description: 'نور ملایم برای مطالعه',
-    category: ProductCategory.home,
-    price: 890000,
-    rating: 4.5,
-    reviewCount: 31,
-  ),
-  Product(
-    id: 'skin-care',
-    title: 'کرم آبرسان',
-    description: 'مناسب استفاده روزانه',
-    category: ProductCategory.beauty,
-    price: 645000,
-    rating: 4.9,
-    reviewCount: 77,
-  ),
-  Product(
-    id: 'backpack',
-    title: 'کوله‌پشتی شهری',
-    description: 'جای لپ‌تاپ و وسایل روزمره',
-    category: ProductCategory.fashion,
-    price: 1690000,
-    rating: 4.6,
-    reviewCount: 42,
-  ),
-];
+class _ProductsErrorView extends StatelessWidget {
+  const _ProductsErrorView({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_off_rounded,
+                size: 54, color: Color(0xFF938FA1)),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('تلاش دوباره'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
