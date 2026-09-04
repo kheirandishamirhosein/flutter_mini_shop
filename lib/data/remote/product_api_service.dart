@@ -5,16 +5,18 @@ import 'package:http/http.dart' as http;
 import '../../core/config/api_config.dart';
 import '../models/product_model.dart';
 import 'product_api_exception.dart';
+import 'product_remote_data_source.dart';
 
 /// Owns the HTTP details for the products endpoint.
 ///
 /// It is intentionally not used by widgets. A repository will call it in the
 /// next layer and map [ProductModel] to the app's domain entity.
-class ProductApiService {
+class ProductApiService implements ProductRemoteDataSource {
   const ProductApiService(this._client);
 
   final http.Client _client;
 
+  @override
   Future<List<ProductModel>> getProducts() async {
     late final http.Response response;
     try {
@@ -32,14 +34,14 @@ class ProductApiService {
       );
     }
 
-    final decoded = jsonDecode(response.body);
-    if (decoded is! List) {
-      throw const ProductApiException(
-        'Unexpected products response: expected a JSON list.',
-      );
-    }
-
     try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is! List) {
+        throw const ProductApiException(
+          'Unexpected products response: expected a JSON list.',
+        );
+      }
+
       return decoded
           .map(
             (item) => ProductModel.fromJson(
@@ -47,6 +49,8 @@ class ProductApiService {
             ),
           )
           .toList();
+    } on ProductApiException {
+      rethrow;
     } on FormatException catch (_) {
       throw const ProductApiException(
           'The products response is not valid JSON.');

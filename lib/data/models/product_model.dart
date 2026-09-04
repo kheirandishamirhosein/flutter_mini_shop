@@ -1,3 +1,5 @@
+import '../../domain/entities/product.dart';
+
 class ProductModel {
   const ProductModel({
     required this.id,
@@ -22,7 +24,7 @@ class ProductModel {
       category: json['category'] as String,
       imageUrl: json['image'] as String,
       rating: (rating?['rate'] as num?)?.toDouble() ?? 0,
-      ratingCount: rating?['count'] as int? ?? 0,
+      ratingCount: (rating?['count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -34,4 +36,27 @@ class ProductModel {
   final String imageUrl;
   final double rating;
   final int ratingCount;
+
+  Product toEntity() {
+    return Product(
+      id: id.toString(),
+      title: title,
+      description: description,
+      imageUrl: imageUrl,
+      category: _mapCategory(category),
+      price: price,
+      rating: rating,
+      reviewCount: ratingCount,
+    );
+  }
+
+  ProductCategory _mapCategory(String apiCategory) {
+    return switch (apiCategory) {
+      'electronics' => ProductCategory.electronics,
+      'jewelery' => ProductCategory.jewelry,
+      "men's clothing" => ProductCategory.mensClothing,
+      "women's clothing" => ProductCategory.womensClothing,
+      _ => ProductCategory.all,
+    };
+  }
 }
