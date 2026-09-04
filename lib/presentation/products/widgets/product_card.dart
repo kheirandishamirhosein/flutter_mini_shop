@@ -118,7 +118,7 @@ class ProductCard extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Text(
-                '${product.reviewCount} نظر',
+                '${product.reviewCount} reviews',
                 style: const TextStyle(color: Color(0xFF777285), fontSize: 10),
               ),
             ],

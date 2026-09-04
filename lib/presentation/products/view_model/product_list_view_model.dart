@@ -43,7 +43,8 @@ class ProductListViewModel extends ChangeNotifier {
     } catch (_) {
       _state = const ProductListState(
         status: ProductListStatus.failure,
-        errorMessage: 'دریافت محصولات ممکن نشد. اتصال اینترنت را بررسی کن.',
+        errorMessage:
+            'Unable to load products. Check your internet connection.',
       );
     }
 

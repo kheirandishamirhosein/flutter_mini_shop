@@ -67,12 +67,12 @@ class _ProductListPageState extends State<ProductListPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'سلام، محمد 👋',
+              'Hello, Amirhosein 👋',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
             SizedBox(height: 3),
             Text(
-              'محصولات منتخب',
+              'Featured Products',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
             ),
           ],
@@ -81,7 +81,7 @@ class _ProductListPageState extends State<ProductListPage> {
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 20),
             child: IconButton.filledTonal(
-              tooltip: 'اعلان‌ها',
+              tooltip: 'Notifications',
               onPressed: () {},
               icon: const Icon(Icons.notifications_none_rounded),
             ),
@@ -99,7 +99,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 onChanged: (_) => setState(() {}),
                 textInputAction: TextInputAction.search,
                 decoration: const InputDecoration(
-                  hintText: 'جست‌وجو بین محصولات',
+                  hintText: 'Search products',
                   prefixIcon: Icon(Icons.search_rounded),
                   suffixIcon: Icon(Icons.tune_rounded),
                 ),
@@ -120,8 +120,8 @@ class _ProductListPageState extends State<ProductListPage> {
                 children: [
                   Text(
                     state.status == ProductListStatus.success
-                        ? '${products.length} محصول'
-                        : 'محصولات',
+                        ? '${products.length} products'
+                        : 'Products',
                     style: const TextStyle(
                       color: Color(0xFF777285),
                       fontSize: 13,
@@ -132,7 +132,7 @@ class _ProductListPageState extends State<ProductListPage> {
                   TextButton.icon(
                     onPressed: () {},
                     icon: const Icon(Icons.swap_vert_rounded, size: 19),
-                    label: const Text('مرتب‌سازی'),
+                    label: const Text('Sort'),
                   ),
                 ],
               ),
@@ -150,22 +150,22 @@ class _ProductListPageState extends State<ProductListPage> {
           NavigationDestination(
             icon: Icon(Icons.storefront_outlined),
             selectedIcon: Icon(Icons.storefront_rounded),
-            label: 'فروشگاه',
+            label: 'Shop',
           ),
           NavigationDestination(
             icon: Icon(Icons.favorite_border_rounded),
             selectedIcon: Icon(Icons.favorite_rounded),
-            label: 'علاقه‌مندی‌ها',
+            label: 'Favorites',
           ),
           NavigationDestination(
             icon: Icon(Icons.shopping_bag_outlined),
             selectedIcon: Icon(Icons.shopping_bag_rounded),
-            label: 'سبد خرید',
+            label: 'Cart',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline_rounded),
             selectedIcon: Icon(Icons.person_rounded),
-            label: 'حساب کاربری',
+            label: 'Profile',
           ),
         ],
       ),
@@ -178,7 +178,7 @@ class _ProductListPageState extends State<ProductListPage> {
         const Center(child: CircularProgressIndicator()),
       ProductListStatus.failure => _ProductsErrorView(
           onRetry: widget.viewModel.loadProducts,
-          message: state.errorMessage ?? 'دریافت محصولات ممکن نشد.',
+          message: state.errorMessage ?? 'Unable to load products.',
         ),
       ProductListStatus.success when products.isEmpty =>
         const _EmptyProductsView(),
@@ -231,12 +231,12 @@ class _EmptyProductsView extends StatelessWidget {
           Icon(Icons.search_off_rounded, size: 54, color: Color(0xFF938FA1)),
           SizedBox(height: 12),
           Text(
-            'محصولی پیدا نشد',
+            'No products found',
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 4),
           Text(
-            'عبارت یا دسته‌بندی دیگری را امتحان کن',
+            'Try a different search term or category.',
             style: TextStyle(color: Color(0xFF777285)),
           ),
         ],
@@ -271,7 +271,7 @@ class _ProductsErrorView extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('تلاش دوباره'),
+              label: const Text('Try again'),
             ),
           ],
         ),

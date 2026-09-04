@@ -13,9 +13,9 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('محصولات منتخب'), findsOneWidget);
+    expect(find.text('Featured Products'), findsOneWidget);
     expect(find.text('Wireless headphones'), findsOneWidget);
-    expect(find.text('جست‌وجو بین محصولات'), findsOneWidget);
+    expect(find.text('Search products'), findsOneWidget);
   });
 }
 

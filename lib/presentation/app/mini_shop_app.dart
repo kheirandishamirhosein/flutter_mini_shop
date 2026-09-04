@@ -29,11 +29,11 @@ class _MiniShopAppState extends State<MiniShopApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'مینی شاپ',
+      title: 'Mini Shop',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       home: Directionality(
-        textDirection: TextDirection.rtl,
+        textDirection: TextDirection.ltr,
         child: ProductListPage(viewModel: widget.viewModel),
       ),
     );

@@ -42,11 +42,11 @@ class CategoryFilter extends StatelessWidget {
 
   String _labelFor(ProductCategory category) {
     return switch (category) {
-      ProductCategory.all => 'همه',
-      ProductCategory.electronics => 'دیجیتال',
-      ProductCategory.jewelry => 'زیورآلات',
-      ProductCategory.mensClothing => 'پوشاک آقایان',
-      ProductCategory.womensClothing => 'پوشاک بانوان',
+      ProductCategory.all => 'All',
+      ProductCategory.electronics => 'Electronics',
+      ProductCategory.jewelry => 'Jewelry',
+      ProductCategory.mensClothing => "Men's clothing",
+      ProductCategory.womensClothing => "Women's clothing",
     };
   }
 }
