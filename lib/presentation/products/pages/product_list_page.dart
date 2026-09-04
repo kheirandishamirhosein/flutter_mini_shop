@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/product.dart';
+import '../../../domain/product_details/usecases/get_product_details_use_case.dart';
+import '../../product_details/pages/product_details_page.dart';
+import '../../product_details/view_model/product_details_view_model.dart';
 import '../view_model/product_list_view_model.dart';
 import '../widgets/category_filter.dart';
 import '../widgets/product_card.dart';
 
 class ProductListPage extends StatefulWidget {
-  const ProductListPage({required this.viewModel, super.key});
+  const ProductListPage({
+    required this.viewModel,
+    required this.getProductDetailsUseCase,
+    super.key,
+  });
 
   final ProductListViewModel viewModel;
+  final GetProductDetailsUseCase getProductDetailsUseCase;
 
   @override
   State<ProductListPage> createState() => _ProductListPageState();
@@ -203,6 +211,18 @@ class _ProductListPageState extends State<ProductListPage> {
                 return ProductCard(
                   product: product,
                   isFavorite: _favoriteIds.contains(product.id),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ProductDetailsPage(
+                          productId: product.id,
+                          viewModel: ProductDetailsViewModel(
+                            widget.getProductDetailsUseCase,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                   onFavoriteTap: () {
                     setState(() {
                       if (!_favoriteIds.add(product.id)) {

@@ -6,12 +6,14 @@ class ProductCard extends StatelessWidget {
   const ProductCard({
     required this.product,
     required this.isFavorite,
+    required this.onTap,
     required this.onFavoriteTap,
     super.key,
   });
 
   final Product product;
   final bool isFavorite;
+  final VoidCallback onTap;
   final VoidCallback onFavoriteTap;
 
   @override
@@ -23,7 +25,7 @@ class ProductCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(22),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {},
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(

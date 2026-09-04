@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../domain/product_details/usecases/get_product_details_use_case.dart';
 import '../products/pages/product_list_page.dart';
 import '../products/view_model/product_list_view_model.dart';
 
 class MiniShopApp extends StatefulWidget {
   const MiniShopApp({
     required this.viewModel,
+    required this.getProductDetailsUseCase,
     this.onDispose,
     super.key,
   });
 
   final ProductListViewModel viewModel;
+  final GetProductDetailsUseCase getProductDetailsUseCase;
   final VoidCallback? onDispose;
 
   @override
@@ -34,7 +37,10 @@ class _MiniShopAppState extends State<MiniShopApp> {
       theme: AppTheme.light(),
       home: Directionality(
         textDirection: TextDirection.ltr,
-        child: ProductListPage(viewModel: widget.viewModel),
+        child: ProductListPage(
+          viewModel: widget.viewModel,
+          getProductDetailsUseCase: widget.getProductDetailsUseCase,
+        ),
       ),
     );
   }
