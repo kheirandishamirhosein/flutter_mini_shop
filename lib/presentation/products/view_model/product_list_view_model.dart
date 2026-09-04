@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../domain/entities/product.dart';
-import '../../../domain/repositories/product_repository.dart';
+import '../../../domain/repo/product_repository.dart';
 
 enum ProductListStatus { loading, success, failure }
 

@@ -46,4 +46,32 @@ void main() {
       throwsA(isA<ProductApiException>()),
     );
   });
+
+  test('gets and parses product details from the configured endpoint',
+      () async {
+    final service = ProductApiService(
+      MockClient((request) async {
+        expect(request.url, ApiConfig.productDetailsUri('1'));
+        expect(request.headers['accept'], 'application/json');
+        return http.Response(
+          '''{
+            "id": 1,
+            "title": "Sample product",
+            "price": 15.5,
+            "description": "A product for a test",
+            "category": "electronics",
+            "image": "https://example.com/product.png",
+            "rating": {"rate": 4.2, "count": 12}
+          }''',
+          200,
+        );
+      }),
+    );
+
+    final product = await service.getProductDetails(productId: '1');
+
+    expect(product.id, 1);
+    expect(product.title, 'Sample product');
+    expect(product.ratingCount, 12);
+  });
 }

@@ -5,4 +5,15 @@ abstract final class ApiConfig {
   static const String baseUrl = 'https://fakestoreapi.com';
 
   static Uri get productsUri => Uri.parse('$baseUrl/products');
+
+  static Uri productDetailsUri(String productId) {
+    final normalizedProductId = productId.trim();
+    if (normalizedProductId.isEmpty) {
+      throw ArgumentError.value(productId, 'productId', 'Must not be empty.');
+    }
+
+    return Uri.parse(baseUrl).replace(
+      pathSegments: ['products', normalizedProductId],
+    );
+  }
 }

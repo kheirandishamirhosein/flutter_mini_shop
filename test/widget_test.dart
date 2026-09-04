@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mini_shop/domain/entities/product.dart';
-import 'package:mini_shop/domain/repositories/product_repository.dart';
+import 'package:mini_shop/domain/repo/product_repository.dart';
 import 'package:mini_shop/presentation/app/mini_shop_app.dart';
 import 'package:mini_shop/presentation/products/view_model/product_list_view_model.dart';
 
@@ -34,5 +34,10 @@ class _FakeProductRepository implements ProductRepository {
         reviewCount: 12,
       ),
     ];
+  }
+
+  @override
+  Future<Product> getProductDetails({required String productId}) async {
+    return (await getProducts()).first;
   }
 }
