@@ -1,4 +1,4 @@
-enum ProductCategory { all, electronics, fashion, home, beauty }
+enum ProductCategory { all, electronics, jewelry, mensClothing, womensClothing }
 
 /// A business object. It deliberately has no Flutter/UI dependencies.
 class Product {
@@ -6,9 +6,9 @@ class Product {
     required this.id,
     required this.title,
     required this.description,
+    required this.imageUrl,
     required this.category,
     required this.price,
-    this.oldPrice,
     this.rating = 0,
     this.reviewCount = 0,
   });
@@ -16,9 +16,9 @@ class Product {
   final String id;
   final String title;
   final String description;
+  final String imageUrl;
   final ProductCategory category;
-  final int price;
-  final int? oldPrice;
+  final double price;
   final double rating;
   final int reviewCount;
 }
