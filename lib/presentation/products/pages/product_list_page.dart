@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/entities/product.dart';
 import '../../../domain/product_details/usecases/get_product_details_use_case.dart';
+import '../../cart/pages/cart_page.dart';
+import '../../cart/view_model/cart_view_model.dart';
 import '../../product_details/pages/product_details_page.dart';
 import '../../product_details/view_model/product_details_view_model.dart';
 import '../view_model/product_list_view_model.dart';
@@ -11,11 +13,13 @@ import '../widgets/product_card.dart';
 class ProductListPage extends StatefulWidget {
   const ProductListPage({
     required this.viewModel,
+    required this.cartViewModel,
     required this.getProductDetailsUseCase,
     super.key,
   });
 
   final ProductListViewModel viewModel;
+  final CartViewModel cartViewModel;
   final GetProductDetailsUseCase getProductDetailsUseCase;
 
   @override
@@ -151,9 +155,7 @@ class _ProductListPageState extends State<ProductListPage> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedNavigationIndex,
-        onDestinationSelected: (index) {
-          setState(() => _selectedNavigationIndex = index);
-        },
+        onDestinationSelected: _onDestinationSelected,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.storefront_outlined),
@@ -219,6 +221,7 @@ class _ProductListPageState extends State<ProductListPage> {
                           viewModel: ProductDetailsViewModel(
                             widget.getProductDetailsUseCase,
                           ),
+                          cartViewModel: widget.cartViewModel,
                         ),
                       ),
                     );
@@ -236,6 +239,19 @@ class _ProductListPageState extends State<ProductListPage> {
           },
         ),
     };
+  }
+
+  void _onDestinationSelected(int index) {
+    if (index == 2) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => CartPage(viewModel: widget.cartViewModel),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _selectedNavigationIndex = index);
   }
 }
 

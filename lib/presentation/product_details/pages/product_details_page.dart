@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/product.dart';
+import '../../cart/view_model/cart_view_model.dart';
 import '../view_model/product_details_view_model.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({
     required this.productId,
     required this.viewModel,
+    required this.cartViewModel,
     super.key,
   });
 
   final String productId;
   final ProductDetailsViewModel viewModel;
+  final CartViewModel cartViewModel;
 
   @override
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
@@ -84,10 +87,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               top: false,
               minimum: const EdgeInsets.fromLTRB(20, 12, 20, 20),
               child: FilledButton.icon(
-                onPressed: () {
+                onPressed: () async {
+                  final didAddProduct = await widget.cartViewModel.addProduct(
+                    product,
+                  );
+                  if (!context.mounted) {
+                    return;
+                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Cart will be available soon.'),
+                    SnackBar(
+                      content: Text(
+                        didAddProduct
+                            ? 'Added to cart.'
+                            : 'Unable to add this product to your cart.',
+                      ),
                     ),
                   );
                 },
