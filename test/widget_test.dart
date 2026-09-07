@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mini_shop/domain/entities/product.dart';
 import 'package:mini_shop/domain/entities/cart_item.dart';
+import 'package:mini_shop/domain/product_categories/usecases/get_product_categories_use_case.dart';
+import 'package:mini_shop/domain/product_categories/usecases/get_products_by_category_use_case.dart';
+import 'package:mini_shop/domain/products/usecases/get_products_use_case.dart';
 import 'package:mini_shop/domain/product_details/usecases/get_product_details_use_case.dart';
 import 'package:mini_shop/domain/repo/product_repository.dart';
 import 'package:mini_shop/domain/repo/cart_repository.dart';
@@ -21,7 +24,13 @@ void main() {
 
     await tester.pumpWidget(
       MiniShopApp(
-        viewModel: ProductListViewModel(repository),
+        viewModel: ProductListViewModel(
+          getProductsUseCase: GetProductsUseCase(repository),
+          getProductCategoriesUseCase: GetProductCategoriesUseCase(repository),
+          getProductsByCategoryUseCase: GetProductsByCategoryUseCase(
+            repository,
+          ),
+        ),
         cartViewModel: CartViewModel(cartRepository),
         favoriteViewModel: FavoriteViewModel(favoriteRepository),
         getProductDetailsUseCase: GetProductDetailsUseCase(repository),
@@ -141,6 +150,18 @@ class _FakeProductRepository implements ProductRepository {
         reviewCount: 12,
       ),
     ];
+  }
+
+  @override
+  Future<List<ProductCategory>> getProductCategories() async {
+    return const [ProductCategory.electronics];
+  }
+
+  @override
+  Future<List<Product>> getProductsByCategory({
+    required ProductCategory category,
+  }) async {
+    return getProducts();
   }
 
   @override

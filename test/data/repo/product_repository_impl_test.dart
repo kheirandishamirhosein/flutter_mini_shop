@@ -24,9 +24,34 @@ void main() {
     expect(product.category, ProductCategory.jewelry);
     expect(product.price, 15.5);
   });
+
+  test('maps API category names into domain categories', () async {
+    final repository = ProductRepositoryImpl(_FakeRemoteDataSource());
+
+    final categories = await repository.getProductCategories();
+
+    expect(categories, [
+      ProductCategory.electronics,
+      ProductCategory.jewelry,
+    ]);
+  });
+
+  test('gets products for the selected domain category', () async {
+    final dataSource = _FakeRemoteDataSource();
+    final repository = ProductRepositoryImpl(dataSource);
+
+    final products = await repository.getProductsByCategory(
+      category: ProductCategory.electronics,
+    );
+
+    expect(dataSource.requestedCategoryName, 'electronics');
+    expect(products.single.category, ProductCategory.electronics);
+  });
 }
 
 class _FakeRemoteDataSource implements ProductRemoteDataSource {
+  String? requestedCategoryName;
+
   @override
   Future<List<ProductModel>> getProducts() async {
     return const [
@@ -36,6 +61,30 @@ class _FakeRemoteDataSource implements ProductRemoteDataSource {
         price: 15.5,
         description: 'Description',
         category: "women's clothing",
+        imageUrl: 'https://example.com/product.png',
+        rating: 4.2,
+        ratingCount: 12,
+      ),
+    ];
+  }
+
+  @override
+  Future<List<String>> getProductCategories() async {
+    return const ['electronics', 'jewelery'];
+  }
+
+  @override
+  Future<List<ProductModel>> getProductsByCategory({
+    required String categoryName,
+  }) async {
+    requestedCategoryName = categoryName;
+    return [
+      ProductModel(
+        id: 1,
+        title: 'Test product',
+        price: 15.5,
+        description: 'Description',
+        category: categoryName,
         imageUrl: 'https://example.com/product.png',
         rating: 4.2,
         ratingCount: 12,

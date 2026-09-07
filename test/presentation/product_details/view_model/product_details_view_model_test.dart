@@ -41,6 +41,15 @@ class _FakeProductRepository implements ProductRepository {
   Future<List<Product>> getProducts() async => const [];
 
   @override
+  Future<List<ProductCategory>> getProductCategories() async => const [];
+
+  @override
+  Future<List<Product>> getProductsByCategory({
+    required ProductCategory category,
+  }) async =>
+      const [];
+
+  @override
   Future<Product> getProductDetails({required String productId}) async {
     if (shouldFail) {
       throw Exception('Network error');

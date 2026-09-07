@@ -47,6 +47,50 @@ void main() {
     );
   });
 
+  test('gets product categories from the configured endpoint', () async {
+    final service = ProductApiService(
+      MockClient((request) async {
+        expect(request.url, ApiConfig.productCategoriesUri);
+        return http.Response('["electronics", "jewelery"]', 200);
+      }),
+    );
+
+    final categories = await service.getProductCategories();
+
+    expect(categories, ['electronics', 'jewelery']);
+  });
+
+  test('gets products for a category from the configured endpoint', () async {
+    final service = ProductApiService(
+      MockClient((request) async {
+        expect(
+          request.url,
+          ApiConfig.productsByCategoryUri('electronics'),
+        );
+        return http.Response(
+          '''[
+            {
+              "id": 1,
+              "title": "Sample product",
+              "price": 15.5,
+              "description": "A product for a test",
+              "category": "electronics",
+              "image": "https://example.com/product.png",
+              "rating": {"rate": 4.2, "count": 12}
+            }
+          ]''',
+          200,
+        );
+      }),
+    );
+
+    final products = await service.getProductsByCategory(
+      categoryName: 'electronics',
+    );
+
+    expect(products.single.category, 'electronics');
+  });
+
   test('gets and parses product details from the configured endpoint',
       () async {
     final service = ProductApiService(
