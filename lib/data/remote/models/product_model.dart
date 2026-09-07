@@ -1,4 +1,5 @@
 import '../../../domain/entities/product.dart';
+import 'product_category_mapper.dart';
 
 class ProductModel {
   const ProductModel({
@@ -43,20 +44,11 @@ class ProductModel {
       title: title,
       description: description,
       imageUrl: imageUrl,
-      category: _mapCategory(category),
+      category:
+          ProductCategoryMapper.fromApiName(category) ?? ProductCategory.all,
       price: price,
       rating: rating,
       reviewCount: ratingCount,
     );
-  }
-
-  ProductCategory _mapCategory(String apiCategory) {
-    return switch (apiCategory) {
-      'electronics' => ProductCategory.electronics,
-      'jewelery' => ProductCategory.jewelry,
-      "men's clothing" => ProductCategory.mensClothing,
-      "women's clothing" => ProductCategory.womensClothing,
-      _ => ProductCategory.all,
-    };
   }
 }

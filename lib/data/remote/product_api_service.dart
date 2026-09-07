@@ -18,10 +18,50 @@ class ProductApiService implements ProductRemoteDataSource {
 
   @override
   Future<List<ProductModel>> getProducts() async {
+    final decoded = await _getJson(
+      uri: ApiConfig.productsUri,
+      requestFailureMessage: 'Could not load products',
+    );
+
+    return _parseProductList(decoded, responseName: 'products');
+  }
+
+  @override
+  Future<List<String>> getProductCategories() async {
+    final decoded = await _getJson(
+      uri: ApiConfig.productCategoriesUri,
+      requestFailureMessage: 'Could not load product categories',
+    );
+
+    if (decoded is! List || decoded.any((item) => item is! String)) {
+      throw const ProductApiException(
+        'Unexpected product categories response: expected a JSON list of strings.',
+      );
+    }
+
+    return decoded.cast<String>();
+  }
+
+  @override
+  Future<List<ProductModel>> getProductsByCategory({
+    required String categoryName,
+  }) async {
+    final decoded = await _getJson(
+      uri: ApiConfig.productsByCategoryUri(categoryName),
+      requestFailureMessage: 'Could not load products for this category',
+    );
+
+    return _parseProductList(decoded, responseName: 'category products');
+  }
+
+  Future<dynamic> _getJson({
+    required Uri uri,
+    required String requestFailureMessage,
+  }) async {
     late final http.Response response;
     try {
       response = await _client.get(
-        ApiConfig.productsUri,
+        uri,
         headers: const {'Accept': 'application/json'},
       );
     } on http.ClientException catch (error) {
@@ -30,18 +70,30 @@ class ProductApiService implements ProductRemoteDataSource {
 
     if (response.statusCode != 200) {
       throw ProductApiException(
-        'Could not load products (HTTP ${response.statusCode}).',
+        '$requestFailureMessage (HTTP ${response.statusCode}).',
       );
     }
 
     try {
-      final decoded = jsonDecode(response.body);
-      if (decoded is! List) {
-        throw const ProductApiException(
-          'Unexpected products response: expected a JSON list.',
-        );
-      }
+      return jsonDecode(response.body);
+    } on ProductApiException {
+      rethrow;
+    } on FormatException catch (_) {
+      throw const ProductApiException('The server response is not valid JSON.');
+    }
+  }
 
+  List<ProductModel> _parseProductList(
+    dynamic decoded, {
+    required String responseName,
+  }) {
+    if (decoded is! List) {
+      throw ProductApiException(
+        'Unexpected $responseName response: expected a JSON list.',
+      );
+    }
+
+    try {
       return decoded
           .map(
             (item) => ProductModel.fromJson(
@@ -49,11 +101,6 @@ class ProductApiService implements ProductRemoteDataSource {
             ),
           )
           .toList();
-    } on ProductApiException {
-      rethrow;
-    } on FormatException catch (_) {
-      throw const ProductApiException(
-          'The products response is not valid JSON.');
     } on TypeError catch (_) {
       throw const ProductApiException('A product has an unexpected shape.');
     }

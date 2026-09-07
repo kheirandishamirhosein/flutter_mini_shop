@@ -6,6 +6,24 @@ abstract final class ApiConfig {
 
   static Uri get productsUri => Uri.parse('$baseUrl/products');
 
+  static Uri get productCategoriesUri =>
+      Uri.parse('$baseUrl/products/categories');
+
+  static Uri productsByCategoryUri(String categoryName) {
+    final normalizedCategoryName = categoryName.trim();
+    if (normalizedCategoryName.isEmpty) {
+      throw ArgumentError.value(
+        categoryName,
+        'categoryName',
+        'Must not be empty.',
+      );
+    }
+
+    return Uri.parse(baseUrl).replace(
+      pathSegments: ['products', 'category', normalizedCategoryName],
+    );
+  }
+
   static Uri productDetailsUri(String productId) {
     final normalizedProductId = productId.trim();
     if (normalizedProductId.isEmpty) {
