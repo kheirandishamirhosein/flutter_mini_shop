@@ -4,6 +4,8 @@ import '../../../domain/entities/product.dart';
 import '../../../domain/product_details/usecases/get_product_details_use_case.dart';
 import '../../cart/pages/cart_page.dart';
 import '../../cart/view_model/cart_view_model.dart';
+import '../../favorites/pages/favorites_page.dart';
+import '../../favorites/view_model/favorite_view_model.dart';
 import '../../product_details/pages/product_details_page.dart';
 import '../../product_details/view_model/product_details_view_model.dart';
 import '../view_model/product_list_view_model.dart';
@@ -14,12 +16,14 @@ class ProductListPage extends StatefulWidget {
   const ProductListPage({
     required this.viewModel,
     required this.cartViewModel,
+    required this.favoriteViewModel,
     required this.getProductDetailsUseCase,
     super.key,
   });
 
   final ProductListViewModel viewModel;
   final CartViewModel cartViewModel;
+  final FavoriteViewModel favoriteViewModel;
   final GetProductDetailsUseCase getProductDetailsUseCase;
 
   @override
@@ -29,19 +33,21 @@ class ProductListPage extends StatefulWidget {
 class _ProductListPageState extends State<ProductListPage> {
   final _searchController = TextEditingController();
   ProductCategory _selectedCategory = ProductCategory.all;
-  final Set<String> _favoriteIds = <String>{};
   int _selectedNavigationIndex = 0;
 
   @override
   void initState() {
     super.initState();
     widget.viewModel.addListener(_onStateChanged);
+    widget.favoriteViewModel.addListener(_onStateChanged);
     widget.viewModel.loadProducts();
+    widget.favoriteViewModel.loadFavorites();
   }
 
   @override
   void dispose() {
     widget.viewModel.removeListener(_onStateChanged);
+    widget.favoriteViewModel.removeListener(_onStateChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -212,7 +218,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 final product = products[index];
                 return ProductCard(
                   product: product,
-                  isFavorite: _favoriteIds.contains(product.id),
+                  isFavorite: widget.favoriteViewModel.isFavorite(product.id),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -222,16 +228,13 @@ class _ProductListPageState extends State<ProductListPage> {
                             widget.getProductDetailsUseCase,
                           ),
                           cartViewModel: widget.cartViewModel,
+                          favoriteViewModel: widget.favoriteViewModel,
                         ),
                       ),
                     );
                   },
                   onFavoriteTap: () {
-                    setState(() {
-                      if (!_favoriteIds.add(product.id)) {
-                        _favoriteIds.remove(product.id);
-                      }
-                    });
+                    widget.favoriteViewModel.toggleFavorite(product);
                   },
                 );
               },
@@ -242,6 +245,19 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   void _onDestinationSelected(int index) {
+    if (index == 1) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => FavoritesPage(
+            viewModel: widget.favoriteViewModel,
+            cartViewModel: widget.cartViewModel,
+            getProductDetailsUseCase: widget.getProductDetailsUseCase,
+          ),
+        ),
+      );
+      return;
+    }
+
     if (index == 2) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(

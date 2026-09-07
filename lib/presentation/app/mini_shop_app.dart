@@ -5,11 +5,13 @@ import '../../domain/product_details/usecases/get_product_details_use_case.dart'
 import '../products/pages/product_list_page.dart';
 import '../products/view_model/product_list_view_model.dart';
 import '../cart/view_model/cart_view_model.dart';
+import '../favorites/view_model/favorite_view_model.dart';
 
 class MiniShopApp extends StatefulWidget {
   const MiniShopApp({
     required this.viewModel,
     required this.cartViewModel,
+    required this.favoriteViewModel,
     required this.getProductDetailsUseCase,
     this.onDispose,
     super.key,
@@ -17,6 +19,7 @@ class MiniShopApp extends StatefulWidget {
 
   final ProductListViewModel viewModel;
   final CartViewModel cartViewModel;
+  final FavoriteViewModel favoriteViewModel;
   final GetProductDetailsUseCase getProductDetailsUseCase;
   final VoidCallback? onDispose;
 
@@ -29,6 +32,7 @@ class _MiniShopAppState extends State<MiniShopApp> {
   void dispose() {
     widget.viewModel.dispose();
     widget.cartViewModel.dispose();
+    widget.favoriteViewModel.dispose();
     widget.onDispose?.call();
     super.dispose();
   }
@@ -44,6 +48,7 @@ class _MiniShopAppState extends State<MiniShopApp> {
         child: ProductListPage(
           viewModel: widget.viewModel,
           cartViewModel: widget.cartViewModel,
+          favoriteViewModel: widget.favoriteViewModel,
           getProductDetailsUseCase: widget.getProductDetailsUseCase,
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/entities/product.dart';
 import '../../cart/view_model/cart_view_model.dart';
+import '../../favorites/view_model/favorite_view_model.dart';
 import '../view_model/product_details_view_model.dart';
 
 class ProductDetailsPage extends StatefulWidget {
@@ -9,24 +10,25 @@ class ProductDetailsPage extends StatefulWidget {
     required this.productId,
     required this.viewModel,
     required this.cartViewModel,
+    required this.favoriteViewModel,
     super.key,
   });
 
   final String productId;
   final ProductDetailsViewModel viewModel;
   final CartViewModel cartViewModel;
+  final FavoriteViewModel favoriteViewModel;
 
   @override
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
 }
 
 class _ProductDetailsPageState extends State<ProductDetailsPage> {
-  bool _isFavorite = false;
-
   @override
   void initState() {
     super.initState();
     widget.viewModel.addListener(_onStateChanged);
+    widget.favoriteViewModel.addListener(_onStateChanged);
     widget.viewModel.loadProduct(widget.productId);
   }
 
@@ -35,6 +37,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     widget.viewModel
       ..removeListener(_onStateChanged)
       ..dispose();
+    widget.favoriteViewModel.removeListener(_onStateChanged);
     super.dispose();
   }
 
@@ -48,6 +51,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget build(BuildContext context) {
     final state = widget.viewModel.state;
     final product = state.product;
+    final isFavorite =
+        product != null && widget.favoriteViewModel.isFavorite(product.id);
 
     return Scaffold(
       appBar: AppBar(
@@ -56,10 +61,10 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           if (product != null)
             IconButton(
               tooltip:
-                  _isFavorite ? 'Remove from favorites' : 'Add to favorites',
-              onPressed: () => setState(() => _isFavorite = !_isFavorite),
+                  isFavorite ? 'Remove from favorites' : 'Add to favorites',
+              onPressed: () => widget.favoriteViewModel.toggleFavorite(product),
               icon: Icon(
-                _isFavorite
+                isFavorite
                     ? Icons.favorite_rounded
                     : Icons.favorite_border_rounded,
               ),
