@@ -4,5 +4,11 @@ import '../entities/product.dart';
 abstract class ProductRepository {
   Future<List<Product>> getProducts();
 
+  Future<List<ProductCategory>> getProductCategories();
+
+  Future<List<Product>> getProductsByCategory({
+    required ProductCategory category,
+  });
+
   Future<Product> getProductDetails({required String productId});
 }
