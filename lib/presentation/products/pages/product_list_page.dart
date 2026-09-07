@@ -32,7 +32,6 @@ class ProductListPage extends StatefulWidget {
 
 class _ProductListPageState extends State<ProductListPage> {
   final _searchController = TextEditingController();
-  ProductCategory _selectedCategory = ProductCategory.all;
   int _selectedNavigationIndex = 0;
 
   @override
@@ -63,12 +62,10 @@ class _ProductListPageState extends State<ProductListPage> {
     final products = widget.viewModel.state.products;
 
     return products.where((product) {
-      final matchesCategory = _selectedCategory == ProductCategory.all ||
-          product.category == _selectedCategory;
       final matchesQuery = query.isEmpty ||
           product.title.toLowerCase().contains(query) ||
           product.description.toLowerCase().contains(query);
-      return matchesCategory && matchesQuery;
+      return matchesQuery;
     }).toList();
   }
 
@@ -126,10 +123,9 @@ class _ProductListPageState extends State<ProductListPage> {
             SizedBox(
               height: 42,
               child: CategoryFilter(
-                selectedCategory: _selectedCategory,
-                onSelected: (category) {
-                  setState(() => _selectedCategory = category);
-                },
+                categories: state.categories,
+                selectedCategory: state.selectedCategory,
+                onSelected: widget.viewModel.selectCategory,
               ),
             ),
             Padding(

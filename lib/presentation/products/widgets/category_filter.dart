@@ -4,11 +4,13 @@ import '../../../domain/entities/product.dart';
 
 class CategoryFilter extends StatelessWidget {
   const CategoryFilter({
+    required this.categories,
     required this.selectedCategory,
     required this.onSelected,
     super.key,
   });
 
+  final List<ProductCategory> categories;
   final ProductCategory selectedCategory;
   final ValueChanged<ProductCategory> onSelected;
 
@@ -17,10 +19,10 @@ class CategoryFilter extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       scrollDirection: Axis.horizontal,
-      itemCount: ProductCategory.values.length,
+      itemCount: categories.length,
       separatorBuilder: (_, __) => const SizedBox(width: 8),
       itemBuilder: (context, index) {
-        final category = ProductCategory.values[index];
+        final category = categories[index];
         final selected = selectedCategory == category;
         return ChoiceChip(
           label: Text(_labelFor(category)),
