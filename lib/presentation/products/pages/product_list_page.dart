@@ -57,22 +57,10 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
-  List<Product> get _visibleProducts {
-    final query = _searchController.text.trim().toLowerCase();
-    final products = widget.viewModel.state.products;
-
-    return products.where((product) {
-      final matchesQuery = query.isEmpty ||
-          product.title.toLowerCase().contains(query) ||
-          product.description.toLowerCase().contains(query);
-      return matchesQuery;
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = widget.viewModel.state;
-    final products = _visibleProducts;
+    final products = state.visibleProducts;
 
     return Scaffold(
       appBar: AppBar(
@@ -111,12 +99,21 @@ class _ProductListPageState extends State<ProductListPage> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
               child: TextField(
                 controller: _searchController,
-                onChanged: (_) => setState(() {}),
+                onChanged: widget.viewModel.updateSearchQuery,
                 textInputAction: TextInputAction.search,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Search products',
-                  prefixIcon: Icon(Icons.search_rounded),
-                  suffixIcon: Icon(Icons.tune_rounded),
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: state.hasSearchQuery
+                      ? IconButton(
+                          tooltip: 'Clear search',
+                          onPressed: () {
+                            _searchController.clear();
+                            widget.viewModel.clearSearch();
+                          },
+                          icon: const Icon(Icons.close_rounded),
+                        )
+                      : null,
                 ),
               ),
             ),

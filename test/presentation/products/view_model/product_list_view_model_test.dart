@@ -32,6 +32,25 @@ void main() {
     expect(viewModel.state.selectedCategory, ProductCategory.jewelry);
     expect(viewModel.state.products.single.category, ProductCategory.jewelry);
   });
+
+  test('filters loaded products by title and clears the query', () async {
+    final repository = _FakeProductRepository();
+    final viewModel = _createViewModel(repository);
+    await viewModel.loadProducts();
+
+    viewModel.updateSearchQuery('test');
+
+    expect(viewModel.state.visibleProducts, hasLength(1));
+
+    viewModel.updateSearchQuery('missing');
+
+    expect(viewModel.state.visibleProducts, isEmpty);
+
+    viewModel.clearSearch();
+
+    expect(viewModel.state.visibleProducts, hasLength(1));
+    expect(viewModel.state.hasSearchQuery, isFalse);
+  });
 }
 
 ProductListViewModel _createViewModel(_FakeProductRepository repository) {
@@ -39,6 +58,7 @@ ProductListViewModel _createViewModel(_FakeProductRepository repository) {
     getProductsUseCase: GetProductsUseCase(repository),
     getProductCategoriesUseCase: GetProductCategoriesUseCase(repository),
     getProductsByCategoryUseCase: GetProductsByCategoryUseCase(repository),
+    searchDebounceDuration: Duration.zero,
   );
 }
 

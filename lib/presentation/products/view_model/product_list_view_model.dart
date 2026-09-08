@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../../domain/entities/product.dart';
@@ -13,6 +15,7 @@ class ProductListState {
     this.products = const [],
     this.categories = const [ProductCategory.all],
     this.selectedCategory = ProductCategory.all,
+    this.searchQuery = '',
     this.errorMessage,
   });
 
@@ -22,7 +25,40 @@ class ProductListState {
   final List<Product> products;
   final List<ProductCategory> categories;
   final ProductCategory selectedCategory;
+  final String searchQuery;
   final String? errorMessage;
+
+  bool get hasSearchQuery => searchQuery.isNotEmpty;
+
+  List<Product> get visibleProducts {
+    final normalizedQuery = searchQuery.trim().toLowerCase();
+    if (normalizedQuery.isEmpty) {
+      return products;
+    }
+
+    return products.where((product) {
+      return product.title.toLowerCase().contains(normalizedQuery) ||
+          product.description.toLowerCase().contains(normalizedQuery);
+    }).toList();
+  }
+
+  ProductListState copyWith({
+    ProductListStatus? status,
+    List<Product>? products,
+    List<ProductCategory>? categories,
+    ProductCategory? selectedCategory,
+    String? searchQuery,
+    String? errorMessage,
+  }) {
+    return ProductListState(
+      status: status ?? this.status,
+      products: products ?? this.products,
+      categories: categories ?? this.categories,
+      selectedCategory: selectedCategory ?? this.selectedCategory,
+      searchQuery: searchQuery ?? this.searchQuery,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 }
 
 /// Presentation state for the product list.
@@ -33,19 +69,26 @@ class ProductListViewModel extends ChangeNotifier {
     required GetProductsUseCase getProductsUseCase,
     required GetProductCategoriesUseCase getProductCategoriesUseCase,
     required GetProductsByCategoryUseCase getProductsByCategoryUseCase,
+    Duration searchDebounceDuration = const Duration(milliseconds: 300),
   })  : _getProductsUseCase = getProductsUseCase,
         _getProductCategoriesUseCase = getProductCategoriesUseCase,
-        _getProductsByCategoryUseCase = getProductsByCategoryUseCase;
+        _getProductsByCategoryUseCase = getProductsByCategoryUseCase,
+        _searchDebounceDuration = searchDebounceDuration;
 
   final GetProductsUseCase _getProductsUseCase;
   final GetProductCategoriesUseCase _getProductCategoriesUseCase;
   final GetProductsByCategoryUseCase _getProductsByCategoryUseCase;
+  final Duration _searchDebounceDuration;
   ProductListState _state = const ProductListState.loading();
+  Timer? _searchDebounce;
 
   ProductListState get state => _state;
 
   Future<void> loadProducts() async {
-    _state = const ProductListState.loading();
+    _state = ProductListState(
+      status: ProductListStatus.loading,
+      searchQuery: _state.searchQuery,
+    );
     notifyListeners();
 
     try {
@@ -59,6 +102,7 @@ class ProductListViewModel extends ChangeNotifier {
         status: ProductListStatus.success,
         products: products,
         categories: _withAllCategory(categories),
+        searchQuery: _state.searchQuery,
       );
     } catch (_) {
       _state = const ProductListState(
@@ -80,6 +124,7 @@ class ProductListViewModel extends ChangeNotifier {
       status: ProductListStatus.loading,
       categories: _state.categories,
       selectedCategory: category,
+      searchQuery: _state.searchQuery,
     );
     notifyListeners();
 
@@ -90,12 +135,14 @@ class ProductListViewModel extends ChangeNotifier {
         products: products,
         categories: _state.categories,
         selectedCategory: category,
+        searchQuery: _state.searchQuery,
       );
     } catch (_) {
       _state = ProductListState(
         status: ProductListStatus.failure,
         categories: _state.categories,
         selectedCategory: category,
+        searchQuery: _state.searchQuery,
         errorMessage:
             'Unable to load products for this category. Please try again.',
       );
@@ -104,10 +151,40 @@ class ProductListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateSearchQuery(String searchQuery) {
+    _searchDebounce?.cancel();
+
+    if (_searchDebounceDuration == Duration.zero) {
+      _applySearchQuery(searchQuery);
+      return;
+    }
+
+    _searchDebounce = Timer(
+      _searchDebounceDuration,
+      () => _applySearchQuery(searchQuery),
+    );
+  }
+
+  void clearSearch() {
+    _searchDebounce?.cancel();
+    _applySearchQuery('');
+  }
+
+  void _applySearchQuery(String searchQuery) {
+    _state = _state.copyWith(searchQuery: searchQuery);
+    notifyListeners();
+  }
+
   List<ProductCategory> _withAllCategory(List<ProductCategory> categories) {
     return [
       ProductCategory.all,
       ...categories.where((category) => category != ProductCategory.all),
     ];
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 }

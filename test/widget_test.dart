@@ -42,6 +42,14 @@ void main() {
     expect(find.text('Wireless headphones'), findsOneWidget);
     expect(find.text('Search products'), findsOneWidget);
 
+    await tester.enterText(find.byType(TextField), 'missing');
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('No products found'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pump();
+    expect(find.text('Wireless headphones'), findsOneWidget);
+
     await tester.tap(find.byType(ProductCard));
     await tester.pump();
     await tester.pump();
