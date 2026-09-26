@@ -140,10 +140,13 @@ class _ProductListPageState extends State<ProductListPage> {
                     ),
                   ),
                   const Spacer(),
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.swap_vert_rounded, size: 19),
-                    label: const Text('Sort'),
+                  Tooltip(
+                    message: 'Sort products',
+                    child: TextButton.icon(
+                      onPressed: () => _showSortSheet(context, state),
+                      icon: const Icon(Icons.swap_vert_rounded, size: 19),
+                      label: const Text('Sort'),
+                    ),
                   ),
                 ],
               ),
@@ -234,6 +237,59 @@ class _ProductListPageState extends State<ProductListPage> {
             );
           },
         ),
+    };
+  }
+
+  Future<void> _showSortSheet(
+    BuildContext context,
+    ProductListState state,
+  ) {
+    return showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    'Sort products',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                  ),
+                ),
+                ...ProductSortOption.values.map((option) {
+                  return RadioListTile<ProductSortOption>(
+                    title: Text(_sortLabel(option)),
+                    value: option,
+                    groupValue: state.sortOption,
+                    onChanged: (selectedOption) {
+                      if (selectedOption == null) {
+                        return;
+                      }
+
+                      widget.viewModel.selectSort(selectedOption);
+                      Navigator.of(sheetContext).pop();
+                    },
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _sortLabel(ProductSortOption option) {
+    return switch (option) {
+      ProductSortOption.defaultOrder => 'Default',
+      ProductSortOption.priceLowToHigh => 'Price: Low to High',
+      ProductSortOption.priceHighToLow => 'Price: High to Low',
+      ProductSortOption.ratingHighToLow => 'Rating: High to Low',
     };
   }
 

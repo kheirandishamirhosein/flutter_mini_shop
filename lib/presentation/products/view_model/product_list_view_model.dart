@@ -9,6 +9,13 @@ import '../../../domain/products/usecases/get_products_use_case.dart';
 
 enum ProductListStatus { loading, success, failure }
 
+enum ProductSortOption {
+  defaultOrder,
+  priceLowToHigh,
+  priceHighToLow,
+  ratingHighToLow,
+}
+
 class ProductListState {
   const ProductListState({
     required this.status,
@@ -16,6 +23,7 @@ class ProductListState {
     this.categories = const [ProductCategory.all],
     this.selectedCategory = ProductCategory.all,
     this.searchQuery = '',
+    this.sortOption = ProductSortOption.defaultOrder,
     this.errorMessage,
   });
 
@@ -26,20 +34,36 @@ class ProductListState {
   final List<ProductCategory> categories;
   final ProductCategory selectedCategory;
   final String searchQuery;
+  final ProductSortOption sortOption;
   final String? errorMessage;
 
   bool get hasSearchQuery => searchQuery.isNotEmpty;
 
   List<Product> get visibleProducts {
     final normalizedQuery = searchQuery.trim().toLowerCase();
-    if (normalizedQuery.isEmpty) {
-      return products;
+    final filteredProducts = normalizedQuery.isEmpty
+        ? products.toList()
+        : products.where((product) {
+            return product.title.toLowerCase().contains(normalizedQuery) ||
+                product.description.toLowerCase().contains(normalizedQuery);
+          }).toList();
+
+    switch (sortOption) {
+      case ProductSortOption.defaultOrder:
+        return filteredProducts;
+      case ProductSortOption.priceLowToHigh:
+        filteredProducts
+            .sort((first, second) => first.price.compareTo(second.price));
+      case ProductSortOption.priceHighToLow:
+        filteredProducts
+            .sort((first, second) => second.price.compareTo(first.price));
+      case ProductSortOption.ratingHighToLow:
+        filteredProducts.sort(
+          (first, second) => second.rating.compareTo(first.rating),
+        );
     }
 
-    return products.where((product) {
-      return product.title.toLowerCase().contains(normalizedQuery) ||
-          product.description.toLowerCase().contains(normalizedQuery);
-    }).toList();
+    return filteredProducts;
   }
 
   ProductListState copyWith({
@@ -48,6 +72,7 @@ class ProductListState {
     List<ProductCategory>? categories,
     ProductCategory? selectedCategory,
     String? searchQuery,
+    ProductSortOption? sortOption,
     String? errorMessage,
   }) {
     return ProductListState(
@@ -56,6 +81,7 @@ class ProductListState {
       categories: categories ?? this.categories,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       searchQuery: searchQuery ?? this.searchQuery,
+      sortOption: sortOption ?? this.sortOption,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -88,6 +114,7 @@ class ProductListViewModel extends ChangeNotifier {
     _state = ProductListState(
       status: ProductListStatus.loading,
       searchQuery: _state.searchQuery,
+      sortOption: _state.sortOption,
     );
     notifyListeners();
 
@@ -103,6 +130,7 @@ class ProductListViewModel extends ChangeNotifier {
         products: products,
         categories: _withAllCategory(categories),
         searchQuery: _state.searchQuery,
+        sortOption: _state.sortOption,
       );
     } catch (_) {
       _state = const ProductListState(
@@ -125,6 +153,7 @@ class ProductListViewModel extends ChangeNotifier {
       categories: _state.categories,
       selectedCategory: category,
       searchQuery: _state.searchQuery,
+      sortOption: _state.sortOption,
     );
     notifyListeners();
 
@@ -136,6 +165,7 @@ class ProductListViewModel extends ChangeNotifier {
         categories: _state.categories,
         selectedCategory: category,
         searchQuery: _state.searchQuery,
+        sortOption: _state.sortOption,
       );
     } catch (_) {
       _state = ProductListState(
@@ -143,6 +173,7 @@ class ProductListViewModel extends ChangeNotifier {
         categories: _state.categories,
         selectedCategory: category,
         searchQuery: _state.searchQuery,
+        sortOption: _state.sortOption,
         errorMessage:
             'Unable to load products for this category. Please try again.',
       );
@@ -168,6 +199,15 @@ class ProductListViewModel extends ChangeNotifier {
   void clearSearch() {
     _searchDebounce?.cancel();
     _applySearchQuery('');
+  }
+
+  void selectSort(ProductSortOption sortOption) {
+    if (sortOption == _state.sortOption) {
+      return;
+    }
+
+    _state = _state.copyWith(sortOption: sortOption);
+    notifyListeners();
   }
 
   void _applySearchQuery(String searchQuery) {

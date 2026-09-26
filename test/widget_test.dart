@@ -50,6 +50,13 @@ void main() {
     await tester.pump();
     expect(find.text('Wireless headphones'), findsOneWidget);
 
+    await tester.tap(find.byTooltip('Sort products'));
+    await tester.pumpAndSettle();
+    expect(find.text('Price: Low to High'), findsOneWidget);
+
+    await tester.tap(find.text('Rating: High to Low'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.byType(ProductCard));
     await tester.pump();
     await tester.pump();

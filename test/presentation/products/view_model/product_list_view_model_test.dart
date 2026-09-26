@@ -51,6 +51,42 @@ void main() {
     expect(viewModel.state.visibleProducts, hasLength(1));
     expect(viewModel.state.hasSearchQuery, isFalse);
   });
+
+  test('sorts visible products by price and rating', () async {
+    final repository = _FakeProductRepository(
+      products: const [
+        Product(
+          id: '1',
+          title: 'Expensive product',
+          description: 'Description',
+          imageUrl: '',
+          category: ProductCategory.electronics,
+          price: 30,
+          rating: 3,
+        ),
+        Product(
+          id: '2',
+          title: 'Affordable product',
+          description: 'Description',
+          imageUrl: '',
+          category: ProductCategory.electronics,
+          price: 10,
+          rating: 4,
+        ),
+      ],
+    );
+    final viewModel = _createViewModel(repository);
+    await viewModel.loadProducts();
+
+    viewModel.selectSort(ProductSortOption.priceLowToHigh);
+
+    expect(viewModel.state.visibleProducts.first.id, '2');
+
+    viewModel.selectSort(ProductSortOption.ratingHighToLow);
+
+    expect(viewModel.state.visibleProducts.first.id, '2');
+    expect(viewModel.state.sortOption, ProductSortOption.ratingHighToLow);
+  });
 }
 
 ProductListViewModel _createViewModel(_FakeProductRepository repository) {
@@ -63,11 +99,24 @@ ProductListViewModel _createViewModel(_FakeProductRepository repository) {
 }
 
 class _FakeProductRepository implements ProductRepository {
+  _FakeProductRepository({List<Product>? products})
+      : _products = products ?? [_defaultProduct];
+
+  static const _defaultProduct = Product(
+    id: '1',
+    title: 'Test product',
+    description: 'Description',
+    imageUrl: '',
+    category: ProductCategory.electronics,
+    price: 12,
+  );
+
+  final List<Product> _products;
   ProductCategory? requestedCategory;
 
   @override
   Future<List<Product>> getProducts() async {
-    return [_productFor(ProductCategory.electronics)];
+    return _products;
   }
 
   @override
