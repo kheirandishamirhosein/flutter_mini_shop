@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../../checkout/pages/checkout_page.dart';
+import '../../checkout/view_model/checkout_view_model.dart';
 import '../view_model/cart_view_model.dart';
 import '../widgets/cart_item_tile.dart';
 
 class CartPage extends StatefulWidget {
-  const CartPage({required this.viewModel, super.key});
+  const CartPage({
+    required this.viewModel,
+    required this.checkoutViewModel,
+    super.key,
+  });
 
   final CartViewModel viewModel;
+  final CheckoutViewModel checkoutViewModel;
 
   @override
   State<CartPage> createState() => _CartPageState();
@@ -117,9 +124,13 @@ class _CartPageState extends State<CartPage> {
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Checkout will be available soon.'),
+                        widget.checkoutViewModel.reset();
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => CheckoutPage(
+                              cartViewModel: widget.viewModel,
+                              viewModel: widget.checkoutViewModel,
+                            ),
                           ),
                         );
                       },

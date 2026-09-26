@@ -140,17 +140,25 @@ class _ProductDetailsContent extends StatelessWidget {
             ),
             child: Padding(
               padding: const EdgeInsets.all(28),
-              child: Image.network(
-                product.imageUrl,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Center(
-                  child: Icon(
-                    Icons.image_not_supported_outlined,
-                    size: 72,
-                    color: Color(0xFF817C8C),
-                  ),
-                ),
-              ),
+              child: product.imageUrl.isEmpty
+                  ? const Center(
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        size: 72,
+                        color: Color(0xFF817C8C),
+                      ),
+                    )
+                  : Image.network(
+                      product.imageUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Center(
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          size: 72,
+                          color: Color(0xFF817C8C),
+                        ),
+                      ),
+                    ),
             ),
           ),
           const SizedBox(height: 24),

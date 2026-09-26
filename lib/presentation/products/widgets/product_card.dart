@@ -45,14 +45,25 @@ class ProductCard extends StatelessWidget {
                           end: Alignment.bottomLeft,
                         ),
                       ),
-                      child: Image.network(
-                        product.imageUrl,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Center(
-                          child:
-                              Icon(visual.icon, color: Colors.white, size: 62),
-                        ),
-                      ),
+                      child: product.imageUrl.isEmpty
+                          ? Center(
+                              child: Icon(
+                                visual.icon,
+                                color: Colors.white,
+                                size: 62,
+                              ),
+                            )
+                          : Image.network(
+                              product.imageUrl,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => Center(
+                                child: Icon(
+                                  visual.icon,
+                                  color: Colors.white,
+                                  size: 62,
+                                ),
+                              ),
+                            ),
                     ),
                     PositionedDirectional(
                       top: 7,

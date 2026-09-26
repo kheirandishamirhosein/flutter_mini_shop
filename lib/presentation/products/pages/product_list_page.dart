@@ -4,6 +4,7 @@ import '../../../domain/entities/product.dart';
 import '../../../domain/product_details/usecases/get_product_details_use_case.dart';
 import '../../cart/pages/cart_page.dart';
 import '../../cart/view_model/cart_view_model.dart';
+import '../../checkout/view_model/checkout_view_model.dart';
 import '../../favorites/pages/favorites_page.dart';
 import '../../favorites/view_model/favorite_view_model.dart';
 import '../../product_details/pages/product_details_page.dart';
@@ -16,6 +17,7 @@ class ProductListPage extends StatefulWidget {
   const ProductListPage({
     required this.viewModel,
     required this.cartViewModel,
+    required this.checkoutViewModel,
     required this.favoriteViewModel,
     required this.getProductDetailsUseCase,
     super.key,
@@ -23,6 +25,7 @@ class ProductListPage extends StatefulWidget {
 
   final ProductListViewModel viewModel;
   final CartViewModel cartViewModel;
+  final CheckoutViewModel checkoutViewModel;
   final FavoriteViewModel favoriteViewModel;
   final GetProductDetailsUseCase getProductDetailsUseCase;
 
@@ -310,7 +313,10 @@ class _ProductListPageState extends State<ProductListPage> {
     if (index == 2) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => CartPage(viewModel: widget.cartViewModel),
+          builder: (_) => CartPage(
+            viewModel: widget.cartViewModel,
+            checkoutViewModel: widget.checkoutViewModel,
+          ),
         ),
       );
       return;

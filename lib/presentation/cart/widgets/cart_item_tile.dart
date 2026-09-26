@@ -33,14 +33,19 @@ class CartItemTile extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: Image.network(
-                  item.product.imageUrl,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => const Icon(
-                    Icons.image_not_supported_outlined,
-                    color: Color(0xFF817C8C),
-                  ),
-                ),
+                child: item.product.imageUrl.isEmpty
+                    ? const Icon(
+                        Icons.image_not_supported_outlined,
+                        color: Color(0xFF817C8C),
+                      )
+                    : Image.network(
+                        item.product.imageUrl,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.image_not_supported_outlined,
+                          color: Color(0xFF817C8C),
+                        ),
+                      ),
               ),
             ),
             const SizedBox(width: 12),

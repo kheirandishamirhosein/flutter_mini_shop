@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mini_shop/domain/entities/product.dart';
 import 'package:mini_shop/domain/entities/cart_item.dart';
+import 'package:mini_shop/domain/entities/checkout_order.dart';
+import 'package:mini_shop/domain/entities/checkout_request.dart';
+import 'package:mini_shop/domain/checkout/usecases/place_order_use_case.dart';
 import 'package:mini_shop/domain/product_categories/usecases/get_product_categories_use_case.dart';
 import 'package:mini_shop/domain/product_categories/usecases/get_products_by_category_use_case.dart';
 import 'package:mini_shop/domain/products/usecases/get_products_use_case.dart';
@@ -9,10 +12,12 @@ import 'package:mini_shop/domain/product_details/usecases/get_product_details_us
 import 'package:mini_shop/domain/repo/product_repository.dart';
 import 'package:mini_shop/domain/repo/cart_repository.dart';
 import 'package:mini_shop/domain/repo/favorite_repository.dart';
+import 'package:mini_shop/domain/repo/checkout_repository.dart';
 import 'package:mini_shop/presentation/app/mini_shop_app.dart';
 import 'package:mini_shop/presentation/products/view_model/product_list_view_model.dart';
 import 'package:mini_shop/presentation/products/widgets/product_card.dart';
 import 'package:mini_shop/presentation/cart/view_model/cart_view_model.dart';
+import 'package:mini_shop/presentation/checkout/view_model/checkout_view_model.dart';
 import 'package:mini_shop/presentation/favorites/pages/favorites_page.dart';
 import 'package:mini_shop/presentation/favorites/view_model/favorite_view_model.dart';
 
@@ -21,6 +26,7 @@ void main() {
     final repository = _FakeProductRepository();
     final cartRepository = _FakeCartRepository();
     final favoriteRepository = _FakeFavoriteRepository();
+    final checkoutRepository = _FakeCheckoutRepository();
 
     await tester.pumpWidget(
       MiniShopApp(
@@ -32,6 +38,9 @@ void main() {
           ),
         ),
         cartViewModel: CartViewModel(cartRepository),
+        checkoutViewModel: CheckoutViewModel(
+          PlaceOrderUseCase(checkoutRepository),
+        ),
         favoriteViewModel: FavoriteViewModel(favoriteRepository),
         getProductDetailsUseCase: GetProductDetailsUseCase(repository),
       ),
@@ -100,6 +109,23 @@ void main() {
 
     expect(find.text('My Cart'), findsOneWidget);
     expect(find.text('Subtotal'), findsOneWidget);
+
+    await tester.tap(find.text('Checkout'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delivery details'), findsOneWidget);
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'Amirhosein Sharifi',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), '09120000000');
+    await tester.enterText(find.byType(TextFormField).at(2), 'Tehran');
+    final placeOrderButton = find.textContaining('Place order');
+    await tester.tap(placeOrderButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your mock order was placed!'), findsOneWidget);
+    expect(find.text('Order ID: MS-0001'), findsOneWidget);
   });
 }
 
@@ -148,6 +174,17 @@ class _FakeCartRepository implements CartRepository {
     required String productId,
     required int quantity,
   }) async {}
+}
+
+class _FakeCheckoutRepository implements CheckoutRepository {
+  @override
+  Future<CheckoutOrder> placeOrder(CheckoutRequest request) async {
+    return CheckoutOrder(
+      id: 'MS-0001',
+      request: request,
+      createdAt: DateTime(2026),
+    );
+  }
 }
 
 class _FakeProductRepository implements ProductRepository {
