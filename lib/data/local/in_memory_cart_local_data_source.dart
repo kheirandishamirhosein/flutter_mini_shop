@@ -45,4 +45,9 @@ class InMemoryCartLocalDataSource implements CartLocalDataSource {
   Future<void> removeProduct(String productId) async {
     _itemsByProductId.remove(productId);
   }
+
+  @override
+  Future<void> clearCart() async {
+    _itemsByProductId.clear();
+  }
 }

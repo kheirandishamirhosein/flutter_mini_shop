@@ -13,4 +13,6 @@ abstract class CartLocalDataSource {
   });
 
   Future<void> removeProduct(String productId);
+
+  Future<void> clearCart();
 }

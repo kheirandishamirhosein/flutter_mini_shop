@@ -33,4 +33,13 @@ void main() {
 
     expect(await dataSource.getCartItems(), isEmpty);
   });
+
+  test('removes every item when the cart is cleared', () async {
+    final dataSource = InMemoryCartLocalDataSource();
+    await dataSource.addProduct(product);
+
+    await dataSource.clearCart();
+
+    expect(await dataSource.getCartItems(), isEmpty);
+  });
 }

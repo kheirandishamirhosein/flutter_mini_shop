@@ -66,7 +66,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
     );
 
-    if (!mounted || completed) {
+    if (!mounted) {
+      return;
+    }
+
+    if (completed) {
+      await widget.cartViewModel.loadCart();
       return;
     }
 

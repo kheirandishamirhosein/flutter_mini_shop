@@ -13,4 +13,6 @@ abstract class CartRepository {
   });
 
   Future<void> removeProduct(String productId);
+
+  Future<void> clearCart();
 }

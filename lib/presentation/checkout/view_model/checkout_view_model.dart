@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../domain/cart/usecases/clear_cart_use_case.dart';
 import '../../../domain/checkout/usecases/place_order_use_case.dart';
 import '../../../domain/entities/checkout_order.dart';
 import '../../../domain/entities/checkout_request.dart';
@@ -24,9 +25,10 @@ class CheckoutState {
 
 /// Presentation state for submitting a checkout order.
 class CheckoutViewModel extends ChangeNotifier {
-  CheckoutViewModel(this._placeOrderUseCase);
+  CheckoutViewModel(this._placeOrderUseCase, this._clearCartUseCase);
 
   final PlaceOrderUseCase _placeOrderUseCase;
+  final ClearCartUseCase _clearCartUseCase;
   CheckoutState _state = const CheckoutState.editing();
 
   CheckoutState get state => _state;
@@ -41,6 +43,7 @@ class CheckoutViewModel extends ChangeNotifier {
 
     try {
       final order = await _placeOrderUseCase(request);
+      await _clearCartUseCase();
       _state = CheckoutState(status: CheckoutStatus.success, order: order);
       notifyListeners();
       return true;

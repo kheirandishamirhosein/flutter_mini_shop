@@ -14,6 +14,7 @@ import '../../domain/product_categories/usecases/get_products_by_category_use_ca
 import '../../domain/products/usecases/get_products_use_case.dart';
 import '../../domain/product_details/usecases/get_product_details_use_case.dart';
 import '../../domain/checkout/usecases/place_order_use_case.dart';
+import '../../domain/cart/usecases/clear_cart_use_case.dart';
 import 'mini_shop_app.dart';
 import '../products/view_model/product_list_view_model.dart';
 import '../cart/view_model/cart_view_model.dart';
@@ -41,6 +42,7 @@ void main() {
       cartViewModel: CartViewModel(cartRepository),
       checkoutViewModel: CheckoutViewModel(
         PlaceOrderUseCase(checkoutRepository),
+        ClearCartUseCase(cartRepository),
       ),
       favoriteViewModel: FavoriteViewModel(favoriteRepository),
       getProductDetailsUseCase: GetProductDetailsUseCase(repository),

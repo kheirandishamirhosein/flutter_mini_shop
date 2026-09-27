@@ -5,6 +5,7 @@ import 'package:mini_shop/domain/entities/cart_item.dart';
 import 'package:mini_shop/domain/entities/checkout_order.dart';
 import 'package:mini_shop/domain/entities/checkout_request.dart';
 import 'package:mini_shop/domain/checkout/usecases/place_order_use_case.dart';
+import 'package:mini_shop/domain/cart/usecases/clear_cart_use_case.dart';
 import 'package:mini_shop/domain/product_categories/usecases/get_product_categories_use_case.dart';
 import 'package:mini_shop/domain/product_categories/usecases/get_products_by_category_use_case.dart';
 import 'package:mini_shop/domain/products/usecases/get_products_use_case.dart';
@@ -40,6 +41,7 @@ void main() {
         cartViewModel: CartViewModel(cartRepository),
         checkoutViewModel: CheckoutViewModel(
           PlaceOrderUseCase(checkoutRepository),
+          ClearCartUseCase(cartRepository),
         ),
         favoriteViewModel: FavoriteViewModel(favoriteRepository),
         getProductDetailsUseCase: GetProductDetailsUseCase(repository),
@@ -126,6 +128,10 @@ void main() {
 
     expect(find.text('Your mock order was placed!'), findsOneWidget);
     expect(find.text('Order ID: MS-0001'), findsOneWidget);
+
+    await tester.tap(find.text('Back to cart'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your cart is empty'), findsOneWidget);
   });
 }
 
@@ -167,6 +173,11 @@ class _FakeCartRepository implements CartRepository {
   @override
   Future<void> removeProduct(String productId) async {
     _items.removeWhere((item) => item.product.id == productId);
+  }
+
+  @override
+  Future<void> clearCart() async {
+    _items.clear();
   }
 
   @override

@@ -31,4 +31,9 @@ class CartRepositoryImpl implements CartRepository {
   Future<void> removeProduct(String productId) {
     return _localDataSource.removeProduct(productId);
   }
+
+  @override
+  Future<void> clearCart() {
+    return _localDataSource.clearCart();
+  }
 }

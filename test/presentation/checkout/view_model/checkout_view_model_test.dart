@@ -1,16 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mini_shop/domain/checkout/usecases/place_order_use_case.dart';
+import 'package:mini_shop/domain/cart/usecases/clear_cart_use_case.dart';
 import 'package:mini_shop/domain/entities/cart_item.dart';
 import 'package:mini_shop/domain/entities/checkout_order.dart';
 import 'package:mini_shop/domain/entities/checkout_request.dart';
 import 'package:mini_shop/domain/entities/product.dart';
 import 'package:mini_shop/domain/repo/checkout_repository.dart';
+import 'package:mini_shop/domain/repo/cart_repository.dart';
 import 'package:mini_shop/presentation/checkout/view_model/checkout_view_model.dart';
 
 void main() {
   test('emits submitting then success when an order is placed', () async {
+    final cartRepository = _FakeCartRepository();
     final viewModel = CheckoutViewModel(
       PlaceOrderUseCase(_FakeCheckoutRepository()),
+      ClearCartUseCase(cartRepository),
     );
     final statuses = <CheckoutStatus>[];
     viewModel.addListener(() => statuses.add(viewModel.state.status));
@@ -20,11 +24,13 @@ void main() {
     expect(completed, isTrue);
     expect(statuses, [CheckoutStatus.submitting, CheckoutStatus.success]);
     expect(viewModel.state.order?.id, 'MS-0001');
+    expect(cartRepository.wasCleared, isTrue);
   });
 
   test('emits failure when placing an order fails', () async {
     final viewModel = CheckoutViewModel(
       PlaceOrderUseCase(_FakeCheckoutRepository(shouldFail: true)),
+      ClearCartUseCase(_FakeCartRepository()),
     );
 
     final completed = await viewModel.submitOrder(_checkoutRequest());
@@ -52,6 +58,30 @@ class _FakeCheckoutRepository implements CheckoutRepository {
       createdAt: DateTime(2026),
     );
   }
+}
+
+class _FakeCartRepository implements CartRepository {
+  bool wasCleared = false;
+
+  @override
+  Future<void> addProduct(Product product) async {}
+
+  @override
+  Future<void> clearCart() async {
+    wasCleared = true;
+  }
+
+  @override
+  Future<List<CartItem>> getCartItems() async => const [];
+
+  @override
+  Future<void> removeProduct(String productId) async {}
+
+  @override
+  Future<void> updateQuantity({
+    required String productId,
+    required int quantity,
+  }) async {}
 }
 
 CheckoutRequest _checkoutRequest() {

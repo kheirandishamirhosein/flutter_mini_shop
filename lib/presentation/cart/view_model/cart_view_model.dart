@@ -69,6 +69,10 @@ class CartViewModel extends ChangeNotifier {
     return _performMutation(() => _repository.removeProduct(productId));
   }
 
+  Future<bool> clearCart() {
+    return _performMutation(_repository.clearCart);
+  }
+
   Future<bool> _performMutation(Future<void> Function() mutation) async {
     try {
       await mutation();
