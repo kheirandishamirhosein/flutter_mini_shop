@@ -9,6 +9,8 @@ import '../../favorites/pages/favorites_page.dart';
 import '../../favorites/view_model/favorite_view_model.dart';
 import '../../product_details/pages/product_details_page.dart';
 import '../../product_details/view_model/product_details_view_model.dart';
+import '../../profile/pages/profile_page.dart';
+import '../../profile/view_model/profile_view_model.dart';
 import '../view_model/product_list_view_model.dart';
 import '../widgets/category_filter.dart';
 import '../widgets/product_card.dart';
@@ -19,6 +21,7 @@ class ProductListPage extends StatefulWidget {
     required this.cartViewModel,
     required this.checkoutViewModel,
     required this.favoriteViewModel,
+    required this.profileViewModel,
     required this.getProductDetailsUseCase,
     super.key,
   });
@@ -27,6 +30,7 @@ class ProductListPage extends StatefulWidget {
   final CartViewModel cartViewModel;
   final CheckoutViewModel checkoutViewModel;
   final FavoriteViewModel favoriteViewModel;
+  final ProfileViewModel profileViewModel;
   final GetProductDetailsUseCase getProductDetailsUseCase;
 
   @override
@@ -317,6 +321,15 @@ class _ProductListPageState extends State<ProductListPage> {
             viewModel: widget.cartViewModel,
             checkoutViewModel: widget.checkoutViewModel,
           ),
+        ),
+      );
+      return;
+    }
+
+    if (index == 3) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ProfilePage(viewModel: widget.profileViewModel),
         ),
       );
       return;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mini_shop/domain/entities/product.dart';
+import 'package:mini_shop/domain/entities/user_profile.dart';
 import 'package:mini_shop/domain/entities/cart_item.dart';
 import 'package:mini_shop/domain/entities/checkout_order.dart';
 import 'package:mini_shop/domain/entities/checkout_request.dart';
@@ -10,10 +11,13 @@ import 'package:mini_shop/domain/product_categories/usecases/get_product_categor
 import 'package:mini_shop/domain/product_categories/usecases/get_products_by_category_use_case.dart';
 import 'package:mini_shop/domain/products/usecases/get_products_use_case.dart';
 import 'package:mini_shop/domain/product_details/usecases/get_product_details_use_case.dart';
+import 'package:mini_shop/domain/profile/usecases/get_user_profile_use_case.dart';
+import 'package:mini_shop/domain/profile/usecases/update_user_profile_use_case.dart';
 import 'package:mini_shop/domain/repo/product_repository.dart';
 import 'package:mini_shop/domain/repo/cart_repository.dart';
 import 'package:mini_shop/domain/repo/favorite_repository.dart';
 import 'package:mini_shop/domain/repo/checkout_repository.dart';
+import 'package:mini_shop/domain/repo/profile_repository.dart';
 import 'package:mini_shop/presentation/app/mini_shop_app.dart';
 import 'package:mini_shop/presentation/products/view_model/product_list_view_model.dart';
 import 'package:mini_shop/presentation/products/widgets/product_card.dart';
@@ -21,6 +25,7 @@ import 'package:mini_shop/presentation/cart/view_model/cart_view_model.dart';
 import 'package:mini_shop/presentation/checkout/view_model/checkout_view_model.dart';
 import 'package:mini_shop/presentation/favorites/pages/favorites_page.dart';
 import 'package:mini_shop/presentation/favorites/view_model/favorite_view_model.dart';
+import 'package:mini_shop/presentation/profile/view_model/profile_view_model.dart';
 
 void main() {
   testWidgets('shows products supplied by the view model', (tester) async {
@@ -28,6 +33,7 @@ void main() {
     final cartRepository = _FakeCartRepository();
     final favoriteRepository = _FakeFavoriteRepository();
     final checkoutRepository = _FakeCheckoutRepository();
+    final profileRepository = _FakeProfileRepository();
 
     await tester.pumpWidget(
       MiniShopApp(
@@ -44,6 +50,10 @@ void main() {
           ClearCartUseCase(cartRepository),
         ),
         favoriteViewModel: FavoriteViewModel(favoriteRepository),
+        profileViewModel: ProfileViewModel(
+          GetUserProfileUseCase(profileRepository),
+          UpdateUserProfileUseCase(profileRepository),
+        ),
         getProductDetailsUseCase: GetProductDetailsUseCase(repository),
       ),
     );
@@ -132,6 +142,28 @@ void main() {
     await tester.tap(find.text('Back to cart'));
     await tester.pumpAndSettle();
     expect(find.text('Your cart is empty'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text('Profile'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Amirhosein Sharifi'), findsAtLeastNWidgets(1));
+
+    await tester.tap(find.text('Edit'));
+    await tester.pump();
+    await tester.enterText(find.byType(TextFormField).at(0), 'Updated user');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profile saved.'), findsOneWidget);
+    expect(find.text('Updated user'), findsAtLeastNWidgets(1));
   });
 }
 
@@ -195,6 +227,22 @@ class _FakeCheckoutRepository implements CheckoutRepository {
       request: request,
       createdAt: DateTime(2026),
     );
+  }
+}
+
+class _FakeProfileRepository implements ProfileRepository {
+  UserProfile _profile = const UserProfile(
+    fullName: 'Amirhosein Sharifi',
+    email: 'amir@example.com',
+    phoneNumber: '09120000000',
+  );
+
+  @override
+  Future<UserProfile> getProfile() async => _profile;
+
+  @override
+  Future<void> updateProfile(UserProfile profile) async {
+    _profile = profile;
   }
 }
 
