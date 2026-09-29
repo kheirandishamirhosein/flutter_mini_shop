@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../data/remote/product_api_service.dart';
-import '../../data/local/in_memory_cart_local_data_source.dart';
 import '../../data/local/in_memory_checkout_local_data_source.dart';
 import '../../data/local/in_memory_favorite_local_data_source.dart';
+import '../../data/local/shared_preferences_cart_local_data_source.dart';
 import '../../data/local/shared_preferences_key_value_storage.dart';
 import '../../data/local/shared_preferences_profile_local_data_source.dart';
 import '../../data/repo/cart/cart_repository_impl.dart';
@@ -31,8 +31,11 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   final httpClient = http.Client();
+  final localStorage = SharedPreferencesKeyValueStorage();
   final repository = ProductRepositoryImpl(ProductApiService(httpClient));
-  final cartRepository = CartRepositoryImpl(InMemoryCartLocalDataSource());
+  final cartRepository = CartRepositoryImpl(
+    SharedPreferencesCartLocalDataSource(localStorage),
+  );
   final checkoutRepository = CheckoutRepositoryImpl(
     InMemoryCheckoutLocalDataSource(),
   );
@@ -40,9 +43,7 @@ void main() {
     InMemoryFavoriteLocalDataSource(),
   );
   final profileRepository = ProfileRepositoryImpl(
-    SharedPreferencesProfileLocalDataSource(
-      SharedPreferencesKeyValueStorage(),
-    ),
+    SharedPreferencesProfileLocalDataSource(localStorage),
   );
 
   runApp(
