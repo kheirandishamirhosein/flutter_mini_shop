@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 
 import '../../data/remote/product_api_service.dart';
 import '../../data/local/in_memory_checkout_local_data_source.dart';
-import '../../data/local/in_memory_favorite_local_data_source.dart';
 import '../../data/local/shared_preferences_cart_local_data_source.dart';
+import '../../data/local/shared_preferences_favorite_local_data_source.dart';
 import '../../data/local/shared_preferences_key_value_storage.dart';
 import '../../data/local/shared_preferences_profile_local_data_source.dart';
 import '../../data/repo/cart/cart_repository_impl.dart';
@@ -40,7 +40,7 @@ void main() {
     InMemoryCheckoutLocalDataSource(),
   );
   final favoriteRepository = FavoriteRepositoryImpl(
-    InMemoryFavoriteLocalDataSource(),
+    SharedPreferencesFavoriteLocalDataSource(localStorage),
   );
   final profileRepository = ProfileRepositoryImpl(
     SharedPreferencesProfileLocalDataSource(localStorage),

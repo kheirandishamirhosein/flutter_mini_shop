@@ -4,6 +4,7 @@ import '../../domain/entities/cart_item.dart';
 import '../../domain/entities/product.dart';
 import 'cart_local_data_source.dart';
 import 'key_value_storage.dart';
+import 'product_local_mapper.dart';
 
 /// Stores the cart locally so it survives app restarts.
 class SharedPreferencesCartLocalDataSource implements CartLocalDataSource {
@@ -96,62 +97,20 @@ class SharedPreferencesCartLocalDataSource implements CartLocalDataSource {
       throw const FormatException('Cart item is not an object.');
     }
 
-    final id = json['id'];
-    final title = json['title'];
-    final description = json['description'];
-    final imageUrl = json['imageUrl'];
-    final categoryName = json['category'];
-    final price = json['price'];
-    final rating = json['rating'];
-    final reviewCount = json['reviewCount'];
     final quantity = json['quantity'];
-
-    if (id is! String ||
-        title is! String ||
-        description is! String ||
-        imageUrl is! String ||
-        categoryName is! String ||
-        price is! num ||
-        rating is! num ||
-        reviewCount is! int ||
-        quantity is! int ||
-        quantity <= 0) {
+    if (quantity is! int || quantity <= 0) {
       throw const FormatException('Cart item has invalid values.');
     }
 
-    final category = ProductCategory.values
-        .where((value) => value.name == categoryName)
-        .firstOrNull;
-    if (category == null) {
-      throw const FormatException('Cart item has an invalid category.');
-    }
-
     return CartItem(
-      product: Product(
-        id: id,
-        title: title,
-        description: description,
-        imageUrl: imageUrl,
-        category: category,
-        price: price.toDouble(),
-        rating: rating.toDouble(),
-        reviewCount: reviewCount,
-      ),
+      product: ProductLocalMapper.fromJson(json),
       quantity: quantity,
     );
   }
 
   Map<String, Object> _cartItemToJson(CartItem item) {
-    final product = item.product;
     return <String, Object>{
-      'id': product.id,
-      'title': product.title,
-      'description': product.description,
-      'imageUrl': product.imageUrl,
-      'category': product.category.name,
-      'price': product.price,
-      'rating': product.rating,
-      'reviewCount': product.reviewCount,
+      ...ProductLocalMapper.toJson(item.product),
       'quantity': item.quantity,
     };
   }
