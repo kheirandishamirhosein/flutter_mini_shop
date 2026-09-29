@@ -5,7 +5,8 @@ import '../../data/remote/product_api_service.dart';
 import '../../data/local/in_memory_cart_local_data_source.dart';
 import '../../data/local/in_memory_checkout_local_data_source.dart';
 import '../../data/local/in_memory_favorite_local_data_source.dart';
-import '../../data/local/in_memory_profile_local_data_source.dart';
+import '../../data/local/shared_preferences_key_value_storage.dart';
+import '../../data/local/shared_preferences_profile_local_data_source.dart';
 import '../../data/repo/cart/cart_repository_impl.dart';
 import '../../data/repo/checkout/checkout_repository_impl.dart';
 import '../../data/repo/favorite/favorite_repository_impl.dart';
@@ -27,6 +28,8 @@ import '../favorites/view_model/favorite_view_model.dart';
 import '../profile/view_model/profile_view_model.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final httpClient = http.Client();
   final repository = ProductRepositoryImpl(ProductApiService(httpClient));
   final cartRepository = CartRepositoryImpl(InMemoryCartLocalDataSource());
@@ -37,7 +40,9 @@ void main() {
     InMemoryFavoriteLocalDataSource(),
   );
   final profileRepository = ProfileRepositoryImpl(
-    InMemoryProfileLocalDataSource(),
+    SharedPreferencesProfileLocalDataSource(
+      SharedPreferencesKeyValueStorage(),
+    ),
   );
 
   runApp(

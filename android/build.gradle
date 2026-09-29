@@ -6,6 +6,14 @@ allprojects {
     }
 }
 
+// Some Flutter plugins have their own buildscript repositories. Make the
+// project mirror available to those plugin build scripts as well.
+gradle.beforeProject { project ->
+    project.buildscript.repositories {
+        maven { url 'https://maven.aliyun.com/repository/google' }
+    }
+}
+
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
