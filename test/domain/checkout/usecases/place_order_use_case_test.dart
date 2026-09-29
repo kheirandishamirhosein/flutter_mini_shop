@@ -42,6 +42,9 @@ class _FakeCheckoutRepository implements CheckoutRepository {
   CheckoutRequest? receivedRequest;
 
   @override
+  Future<List<CheckoutOrder>> getOrders() async => const [];
+
+  @override
   Future<CheckoutOrder> placeOrder(CheckoutRequest request) async {
     receivedRequest = request;
     return CheckoutOrder(

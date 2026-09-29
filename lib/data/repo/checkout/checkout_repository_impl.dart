@@ -13,4 +13,9 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   Future<CheckoutOrder> placeOrder(CheckoutRequest request) {
     return _localDataSource.placeOrder(request);
   }
+
+  @override
+  Future<List<CheckoutOrder>> getOrders() {
+    return _localDataSource.getOrders();
+  }
 }

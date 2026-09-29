@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/user_profile.dart';
+import '../../order_history/pages/order_history_page.dart';
+import '../../order_history/view_model/order_history_view_model.dart';
 import '../view_model/profile_view_model.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({required this.viewModel, super.key});
+  const ProfilePage({
+    required this.viewModel,
+    required this.orderHistoryViewModel,
+    super.key,
+  });
 
   final ProfileViewModel viewModel;
+  final OrderHistoryViewModel orderHistoryViewModel;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -100,6 +107,16 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Future<void> _openOrderHistory() {
+    return Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => OrderHistoryPage(
+          viewModel: widget.orderHistoryViewModel,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = widget.viewModel.state;
@@ -140,6 +157,7 @@ class _ProfilePageState extends State<ProfilePage> {
               fullNameController: _fullNameController,
               emailController: _emailController,
               phoneNumberController: _phoneNumberController,
+              onOrderHistoryPressed: _openOrderHistory,
             ),
         },
       ),
@@ -178,6 +196,7 @@ class _ProfileContent extends StatelessWidget {
     required this.fullNameController,
     required this.emailController,
     required this.phoneNumberController,
+    required this.onOrderHistoryPressed,
   });
 
   final UserProfile profile;
@@ -187,6 +206,7 @@ class _ProfileContent extends StatelessWidget {
   final TextEditingController fullNameController;
   final TextEditingController emailController;
   final TextEditingController phoneNumberController;
+  final VoidCallback onOrderHistoryPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -248,6 +268,26 @@ class _ProfileContent extends StatelessWidget {
           )
         else
           _ProfileDetails(profile: profile),
+        if (!isEditing) ...[
+          const SizedBox(height: 28),
+          const Text(
+            'Orders',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: const Icon(
+                Icons.receipt_long_outlined,
+                color: Color(0xFF5C4BFF),
+              ),
+              title: const Text('Order history'),
+              subtitle: const Text('View your completed mock orders.'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: onOrderHistoryPressed,
+            ),
+          ),
+        ],
       ],
     );
   }

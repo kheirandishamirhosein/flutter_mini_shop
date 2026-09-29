@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../data/remote/product_api_service.dart';
-import '../../data/local/in_memory_checkout_local_data_source.dart';
 import '../../data/local/shared_preferences_cart_local_data_source.dart';
+import '../../data/local/shared_preferences_checkout_local_data_source.dart';
 import '../../data/local/shared_preferences_favorite_local_data_source.dart';
 import '../../data/local/shared_preferences_key_value_storage.dart';
 import '../../data/local/shared_preferences_profile_local_data_source.dart';
@@ -17,6 +17,7 @@ import '../../domain/product_categories/usecases/get_products_by_category_use_ca
 import '../../domain/products/usecases/get_products_use_case.dart';
 import '../../domain/product_details/usecases/get_product_details_use_case.dart';
 import '../../domain/checkout/usecases/place_order_use_case.dart';
+import '../../domain/checkout/usecases/get_order_history_use_case.dart';
 import '../../domain/cart/usecases/clear_cart_use_case.dart';
 import '../../domain/profile/usecases/get_user_profile_use_case.dart';
 import '../../domain/profile/usecases/update_user_profile_use_case.dart';
@@ -26,6 +27,7 @@ import '../cart/view_model/cart_view_model.dart';
 import '../checkout/view_model/checkout_view_model.dart';
 import '../favorites/view_model/favorite_view_model.dart';
 import '../profile/view_model/profile_view_model.dart';
+import '../order_history/view_model/order_history_view_model.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +39,7 @@ void main() {
     SharedPreferencesCartLocalDataSource(localStorage),
   );
   final checkoutRepository = CheckoutRepositoryImpl(
-    InMemoryCheckoutLocalDataSource(),
+    SharedPreferencesCheckoutLocalDataSource(localStorage),
   );
   final favoriteRepository = FavoriteRepositoryImpl(
     SharedPreferencesFavoriteLocalDataSource(localStorage),
@@ -57,6 +59,9 @@ void main() {
       checkoutViewModel: CheckoutViewModel(
         PlaceOrderUseCase(checkoutRepository),
         ClearCartUseCase(cartRepository),
+      ),
+      orderHistoryViewModel: OrderHistoryViewModel(
+        GetOrderHistoryUseCase(checkoutRepository),
       ),
       favoriteViewModel: FavoriteViewModel(favoriteRepository),
       profileViewModel: ProfileViewModel(

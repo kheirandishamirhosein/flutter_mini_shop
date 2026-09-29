@@ -47,6 +47,9 @@ class _FakeCheckoutRepository implements CheckoutRepository {
   final bool shouldFail;
 
   @override
+  Future<List<CheckoutOrder>> getOrders() async => const [];
+
+  @override
   Future<CheckoutOrder> placeOrder(CheckoutRequest request) async {
     if (shouldFail) {
       throw Exception('Mock checkout failure');

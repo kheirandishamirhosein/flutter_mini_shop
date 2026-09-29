@@ -8,16 +8,22 @@ import 'checkout_local_data_source.dart';
 /// replaced with a remote data source without changing the domain contract.
 class InMemoryCheckoutLocalDataSource implements CheckoutLocalDataSource {
   int _nextOrderNumber = 1;
+  final List<CheckoutOrder> _orders = [];
 
   @override
   Future<CheckoutOrder> placeOrder(CheckoutRequest request) async {
     final orderId = 'MS-${_nextOrderNumber.toString().padLeft(4, '0')}';
     _nextOrderNumber++;
 
-    return CheckoutOrder(
+    final order = CheckoutOrder(
       id: orderId,
       request: request,
       createdAt: DateTime.now(),
     );
+    _orders.add(order);
+    return order;
   }
+
+  @override
+  Future<List<CheckoutOrder>> getOrders() async => List.unmodifiable(_orders);
 }

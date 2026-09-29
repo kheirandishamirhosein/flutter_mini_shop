@@ -8,6 +8,7 @@ import '../cart/view_model/cart_view_model.dart';
 import '../checkout/view_model/checkout_view_model.dart';
 import '../favorites/view_model/favorite_view_model.dart';
 import '../profile/view_model/profile_view_model.dart';
+import '../order_history/view_model/order_history_view_model.dart';
 
 class MiniShopApp extends StatefulWidget {
   const MiniShopApp({
@@ -16,6 +17,7 @@ class MiniShopApp extends StatefulWidget {
     required this.checkoutViewModel,
     required this.favoriteViewModel,
     required this.profileViewModel,
+    required this.orderHistoryViewModel,
     required this.getProductDetailsUseCase,
     this.onDispose,
     super.key,
@@ -26,6 +28,7 @@ class MiniShopApp extends StatefulWidget {
   final CheckoutViewModel checkoutViewModel;
   final FavoriteViewModel favoriteViewModel;
   final ProfileViewModel profileViewModel;
+  final OrderHistoryViewModel orderHistoryViewModel;
   final GetProductDetailsUseCase getProductDetailsUseCase;
   final VoidCallback? onDispose;
 
@@ -41,6 +44,7 @@ class _MiniShopAppState extends State<MiniShopApp> {
     widget.checkoutViewModel.dispose();
     widget.favoriteViewModel.dispose();
     widget.profileViewModel.dispose();
+    widget.orderHistoryViewModel.dispose();
     widget.onDispose?.call();
     super.dispose();
   }
@@ -59,6 +63,7 @@ class _MiniShopAppState extends State<MiniShopApp> {
           checkoutViewModel: widget.checkoutViewModel,
           favoriteViewModel: widget.favoriteViewModel,
           profileViewModel: widget.profileViewModel,
+          orderHistoryViewModel: widget.orderHistoryViewModel,
           getProductDetailsUseCase: widget.getProductDetailsUseCase,
         ),
       ),

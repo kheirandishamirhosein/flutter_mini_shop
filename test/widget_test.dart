@@ -6,6 +6,7 @@ import 'package:mini_shop/domain/entities/cart_item.dart';
 import 'package:mini_shop/domain/entities/checkout_order.dart';
 import 'package:mini_shop/domain/entities/checkout_request.dart';
 import 'package:mini_shop/domain/checkout/usecases/place_order_use_case.dart';
+import 'package:mini_shop/domain/checkout/usecases/get_order_history_use_case.dart';
 import 'package:mini_shop/domain/cart/usecases/clear_cart_use_case.dart';
 import 'package:mini_shop/domain/product_categories/usecases/get_product_categories_use_case.dart';
 import 'package:mini_shop/domain/product_categories/usecases/get_products_by_category_use_case.dart';
@@ -26,6 +27,7 @@ import 'package:mini_shop/presentation/checkout/view_model/checkout_view_model.d
 import 'package:mini_shop/presentation/favorites/pages/favorites_page.dart';
 import 'package:mini_shop/presentation/favorites/view_model/favorite_view_model.dart';
 import 'package:mini_shop/presentation/profile/view_model/profile_view_model.dart';
+import 'package:mini_shop/presentation/order_history/view_model/order_history_view_model.dart';
 
 void main() {
   testWidgets('shows products supplied by the view model', (tester) async {
@@ -48,6 +50,9 @@ void main() {
         checkoutViewModel: CheckoutViewModel(
           PlaceOrderUseCase(checkoutRepository),
           ClearCartUseCase(cartRepository),
+        ),
+        orderHistoryViewModel: OrderHistoryViewModel(
+          GetOrderHistoryUseCase(checkoutRepository),
         ),
         favoriteViewModel: FavoriteViewModel(favoriteRepository),
         profileViewModel: ProfileViewModel(
@@ -156,6 +161,14 @@ void main() {
     );
     expect(find.text('Amirhosein Sharifi'), findsAtLeastNWidgets(1));
 
+    await tester.tap(find.text('Order history'));
+    await tester.pumpAndSettle();
+    expect(find.text('Order History'), findsOneWidget);
+    expect(find.text('Order MS-0001'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Edit'));
     await tester.pump();
     await tester.enterText(find.byType(TextFormField).at(0), 'Updated user');
@@ -220,13 +233,20 @@ class _FakeCartRepository implements CartRepository {
 }
 
 class _FakeCheckoutRepository implements CheckoutRepository {
+  final List<CheckoutOrder> _orders = [];
+
+  @override
+  Future<List<CheckoutOrder>> getOrders() async => List.unmodifiable(_orders);
+
   @override
   Future<CheckoutOrder> placeOrder(CheckoutRequest request) async {
-    return CheckoutOrder(
+    final order = CheckoutOrder(
       id: 'MS-0001',
       request: request,
       createdAt: DateTime(2026),
     );
+    _orders.add(order);
+    return order;
   }
 }
 
